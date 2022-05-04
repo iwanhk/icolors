@@ -1,4 +1,4 @@
-from brownie import accounts, network, config
+from brownie import SVG, Random, IColors, testContract, accounts, network, config
 from scripts.tools import *
 import os
 import random
@@ -6,21 +6,13 @@ import random
 D18= 10**18
 ZERO= '0x0000000000000000000000000000000000000000'
 active_network= network.show_active()
-LANG=["af", "sq", "am", "ar", "hy", "az", "eu", "be", "bn", "bs", "bg", "ca", "ceb", "ny", "zh-cn", "zh-tw", "co", "hr", "cs", "da", "nl", "en", "eo", "et", "tl", "fi", "fr", "fy", "gl", "ka", "de", "el", "gu", "ht", "ha", "haw", "iw", "he", "hi", "hmn", "hu", "is", "ig", "id", "ga", "it", "ja", "jw", "kn", "kk", "km", "ko", "ku", "ky", "lo", "la", "lv", "lt", "lb", "mk", "mg", "ms", "ml", "mt", "mi", "mr", "mn", "my", "ne", "no", "or", "ps", "fa", "pl", "pt", "pa", "ro", "ru", "sm", "gd", "sr", "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tg", "ta", "te", "th", "tr", "uk", "ur", "ug", "uz", "vi", "cy", "xh", "yi", "yo", "zu"];
-DATADIR= 'data/'
-ROOT='0x4a8d100c5b3c09841808d8fe60f6e7ce0812e6154420676e08030af0ad9b43fc'
-ipfs='https://bafybeie3mhgs5mf236vwkdehwyrnvmmo5shezlpir7pdioccuqt6euxtum.ipfs.nftstorage.link/'
-proof={'0x7B0dc23E87febF1D053E7Df9aF4cce30F21fAe9C': ['0x248ac1f01201ebad7020ea2c3e1b2fdf454040932298e8947f9ffb61e8de51a2','0x91a8ee7c5b8062ff383207a299bf57fda043b5785fd32b35fe1a757a9c52abbf'],
-        '0x8531fEaAcD66599102adf9C5f701E6C490f44f1C': ['0x869e65de98ffe6d41241bd4a4149d7152f7ecbe9627441c85862fdeffaa7b05a','0x91a8ee7c5b8062ff383207a299bf57fda043b5785fd32b35fe1a757a9c52abbf'],
-        '0xAb1fdD3F84b2019BEF47939E66fb6194532f9640': ['0xc6fa5ccdc8ab39e4d4daca36f8694c30d4bd3c67febddf13d0f8083d1d24c504']
-}
 
 LOCAL_NETWORKS=['development', 'mainnet-fork', 'polygon-fork']
 TEST_NETWORKS=['rinkeby', 'bsc-test', 'mumbai']
 REAL_NETWORKS=['mainnet', 'polygon']
 DEPLOYED_ADDR={ # Deployed address of CivCityNFT CityToken
-    'rinkeby': ["0x22c1b71bf659a36fad8a476c3499964d2714c13b", "0x8525e4bf39ce1f5e9a3c4cd4fc29c39828edd8e9"],
-    'mumbai': ["0x5C6673a03fA8C4D2015C13725F7D69AdB5343878", "0xb813D03eEe3eF9148Cfa7d51a634857723932bAd"]
+    'rinkeby': "",
+    'mumbai': ""
 }
 
 def get_accounts(active_network):

@@ -8,10 +8,21 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-            pass
+            Random.deploy(addr(admin))
+            SVG.deploy(addr(admin))
+            ic= IColors.deploy(addr(admin))
+
+            ic.registerPublisher("HOBBY", "HOBBY is a community for yougth")
+            ic.publish(['SPORTS', 'MUSIC'], ["chartreuse", "crimson"], [25, 26])
+            ic.publish(['SPORTS', 'ART'], ["chartreuse", "cornsilk"], [25, 26])
+
+            #test=testContract.deploy(addr(admin))
 
         if active_network in TEST_NETWORKS:
-            pass
+            if len(Random)==0:
+                Random.deploy(addr(admin))
+            if len(SVG)==0:    
+                SVG.deploy(addr(admin))
 
     except Exception:
         console.print_exception()

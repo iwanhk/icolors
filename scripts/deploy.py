@@ -8,10 +8,15 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-            pass
+            Random.deploy(addr(admin))
+            SVG.deploy(addr(admin))
+            ic= IColors.deploy(addr(admin))
 
         if active_network in TEST_NETWORKS:
-            pass
+            if len(Random)==0:
+                Random.deploy(addr(admin))
+            SVG.deploy(addr(admin))
+            IColors.deploy(addr(admin))
 
     except Exception:
         console.print_exception()
