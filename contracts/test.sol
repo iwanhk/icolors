@@ -17,6 +17,20 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract testContract {
+    uint256 public id;
+    uint256 public r;
+    uint256 public g;
+    uint256 public b;
+
+    uint256[] list;
+
+    function set(uint256 _id) public {
+        id=_id;
+        r= id % 1000;
+        g= (id/1000) % 1000;
+        b= (id/1000/1000) % 1000;
+
+    }
     function toString(address account) public pure returns(bytes memory) {
         return abi.encodePacked(account);
     }

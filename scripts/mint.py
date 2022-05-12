@@ -10,10 +10,16 @@ def main():
         if active_network in LOCAL_NETWORKS:
             Random.deploy(addr(admin))
             SVG.deploy(addr(admin))
+            Random.deploy(addr(admin))
+            SVG.deploy(addr(admin))
+            ic= IColors.deploy(addr(admin))
+            ic.registerPublisher("HOBBY", "HOBBY is a community for yougth", addr(creator))
+            ic.publish(['SPORTS', 'MUSIC'], ["chartreuse", "crimson"], [25, 26], addr(creator))
+            ic.publish(['SPORTS', 'ART'], ["chartreuse", "cornsilk"], [25, 26], addr(creator))
 
         if active_network in TEST_NETWORKS:
             ic= IColors[-1]
-            ic.registerPublisher("HOBBY", "HOBBY is a community for yougth", addr(admin))
+            ic.registerPublisher("HOBBY", "HOBBY is a community for yougth", addr(creator))
             ic.publish(['SPORTS', 'MUSIC'], ["chartreuse", "crimson"], [25, 26], addr(creator))
             ic.publish(['SPORTS', 'ART'], ["chartreuse", "cornsilk"], [25, 26], addr(creator))
 

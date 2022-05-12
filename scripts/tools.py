@@ -7,7 +7,7 @@ from rich import print
 from rich import pretty
 pretty.install()
 from rich.console import Console 
-from pprint import pprint
+#from pprint import pprint
 console = Console(style="white on blue", stderr=True)
 from brownie_tokens import MintableForkToken
 

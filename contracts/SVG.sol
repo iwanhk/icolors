@@ -35,7 +35,7 @@ library SVG {
         return '</svg>';
     }
 
-    function bg(string calldata color) public pure returns (bytes memory){
+    function bg(bytes calldata color) public pure returns (bytes memory){
         return abi.encodePacked('<path fill="',
                                 color,
                                 '" d="M0 0h500v500H0z"/>');
