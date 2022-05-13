@@ -23,6 +23,13 @@ contract iColorsNFT is Ownable, ERC721A {
 
     event Charged(address from, uint256 fee);
     event Published(address from, uint256 count);
+    event Minted(
+        address from,
+        address to,
+        string color,
+        uint256 amount,
+        uint256 fee
+    );
 
     struct Publisher {
         uint256[] colorList;
@@ -147,7 +154,7 @@ contract iColorsNFT is Ownable, ERC721A {
         address _to,
         uint256 _color,
         uint256 _amount
-    ) external onlyPublisher {
+    ) external payable onlyPublisher {
         require(_amount > 0, "0 amount to mint");
         require(_to != address(0), "address 0 to mint");
         require(colors[_color].publisher == msg.sender, "Not owner");
@@ -181,6 +188,18 @@ contract iColorsNFT is Ownable, ERC721A {
         }
 
         colors[_color].amount -= _amount;
+
+        uint256 weight = bytes(colors[_color].attr).length * _amount;
+        require(msg.value >= weight * Price, "Not enought funds");
+        payable(msg.sender).transfer(msg.value - weight * Price);
+
+        emit Minted(
+            msg.sender,
+            _to,
+            colors[_color].attr,
+            _amount,
+            weight * Price
+        );
     }
 
     function setPrice(uint256 _price) external onlyOwner {

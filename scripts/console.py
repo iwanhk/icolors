@@ -46,6 +46,23 @@ def main():
             print(
                 f"Address {tx.events[0]['from']} Fee: {tx.events[0]['fee']} , {tx.events[1]['count']} color(s)")
 
+            tx = ic.mint(consumer, color1, 5, addr2(creator, 500))
+            tx.wait(1)
+            print(
+                f"{tx.events[0]['color']}({tx.events[0]['amount']}) minted, fee: {tx.events[0]['fee']}")
+            tx = ic.mint(consumer, color2, 5, addr2(creator, 500))
+            tx.wait(1)
+            print(
+                f"{tx.events[0]['color']}({tx.events[0]['amount']}) minted, fee: {tx.events[0]['fee']}")
+            tx = ic.mint(consumer, color3, 5, addr2(creator, 500))
+            tx.wait(1)
+            print(
+                f"{tx.events[0]['color']}({tx.events[0]['amount']}) minted, fee: {tx.events[0]['fee']}")
+            tx = ic.mint(consumer, color4, 5, addr2(iwan, 500))
+            tx.wait(1)
+            print(
+                f"{tx.events[0]['color']}({tx.events[0]['amount']}) minted, fee: {tx.events[0]['fee']}")
+
             # test=testContract.deploy(addr(admin))
 
             # ic.safeTransferFrom(admin, iwan, 0, 5, '', addr(admin))
