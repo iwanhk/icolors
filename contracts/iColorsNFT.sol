@@ -50,10 +50,10 @@ contract iColorsNFT is Ownable, ERC721A {
         address publisher;
     }
 
-    mapping(address => Publisher) public publishers;
-    mapping(address => Holder) public holders;
-    mapping(uint256 => Color) public colors;
-    address[] public globalTokens;
+    mapping(address => Publisher) publishers;
+    mapping(address => Holder) holders;
+    mapping(uint256 => Color) colors;
+    address[] globalTokens;
 
     uint256 public Rate = 1;
     uint256 public Floor = 0.001 ether;
@@ -68,7 +68,7 @@ contract iColorsNFT is Ownable, ERC721A {
         _;
     }
 
-    constructor() ERC721A("iColors.NFT", "ICS") {}
+    constructor() ERC721A("iColors.NFT", "ICO") {}
 
     function publish(
         string calldata _name,
@@ -294,7 +294,7 @@ contract iColorsNFT is Ownable, ERC721A {
             );
     }
 
-    function svgImage(uint256 tokenId) public view returns (bytes memory) {
+    function svgImage(uint256 tokenId) internal view returns (bytes memory) {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 count = _holder.colorList.length;
         bytes
@@ -313,7 +313,7 @@ contract iColorsNFT is Ownable, ERC721A {
                 (_width * i).toString(),
                 '" y="0" width="',
                 _width.toString(),
-                '" height="500" style="fill: rgb(',
+                '" height="500" style="fill:rgb(',
                 r.toString(),
                 ",",
                 g.toString(),
