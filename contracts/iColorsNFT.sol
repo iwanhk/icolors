@@ -17,6 +17,8 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC721A.sol";
+import "./Base64.sol";
+import "./Random.sol";
 
 contract iColorsNFT is Ownable, ERC721A {
     using Strings for uint256;
@@ -55,7 +57,7 @@ contract iColorsNFT is Ownable, ERC721A {
     address[] public globalTokens;
 
     uint256 public Rate = 1;
-    uint256 public Floor = 0.1 ether;
+    uint256 public Floor = 0.001 ether;
 
     modifier tokenExist(uint256 tokenId) {
         require(_exists(tokenId), "Nonexistent token");
@@ -251,6 +253,10 @@ contract iColorsNFT is Ownable, ERC721A {
         Floor = _Floor;
     }
 
+    function withDraw() external onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
     function tokenURI(uint256 tokenId)
         public
         view
@@ -259,7 +265,76 @@ contract iColorsNFT is Ownable, ERC721A {
         tokenExist(tokenId)
         returns (string memory)
     {
-        return "";
+        Holder memory _holder = holders[globalTokens[tokenId]];
+        uint256 length = _holder.colorList.length;
+        bytes memory uriBuffer;
+
+        uriBuffer = abi.encodePacked(
+            '{"name": "iColors#',
+            tokenId.toString(),
+            '", "description": "iColors: I am just yet another color"',
+            ', "image_data": "',
+            "data:image/svg+xml;base64,",
+            Base64.encode(svgImage(tokenId)),
+            '", "designer": "LUCA355", "attributes": ['
+        );
+        for (uint256 i = 0; i < length; ++i) {
+            Color memory _color = colors[_holder.colorList[i]];
+            uriBuffer = abi.encodePacked(
+                uriBuffer,
+                '{"trait_type": "',
+                _color.attr,
+                '", "value": "',
+                _holder.amounts[i].toString(),
+                '"},'
+            );
+        }
+
+        // remove the last ','
+        assembly {
+            mstore(uriBuffer, sub(mload(uriBuffer), 1))
+        }
+
+        uriBuffer = abi.encodePacked(uriBuffer, "]}");
+        return
+            string(
+                abi.encodePacked(
+                    "data:application/json;base64,",
+                    Base64.encode(bytes(string(abi.encodePacked(uriBuffer))))
+                )
+            );
+    }
+
+    function svgImage(uint256 tokenId) public view returns (bytes memory) {
+        Holder memory _holder = holders[globalTokens[tokenId]];
+        uint256 count = _holder.colorList.length;
+        bytes
+            memory buffer = '<?xml version="1.0"?><svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"> ';
+
+        uint256 _width = 500 / count;
+        for (uint256 i = 0; i < count; ++i) {
+            uint256 _colorValue = _holder.colorList[i];
+            uint256 r = _colorValue % 1000;
+            uint256 g = (_colorValue / 1000) % 1000;
+            uint256 b = (_colorValue / 1000 / 1000) % 1000;
+
+            buffer = abi.encodePacked(
+                buffer,
+                ' <rect x="',
+                (_width * i).toString(),
+                '" y="0" width="',
+                _width.toString(),
+                '" height="500" style="fill: rgb(',
+                r.toString(),
+                ",",
+                g.toString(),
+                ",",
+                b.toString(),
+                ')"/> '
+            );
+        }
+
+        return abi.encodePacked(buffer, "</svg>");
     }
 
     function token(uint256 tokenId) external view returns (string memory info) {

@@ -9,9 +9,6 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-
-            Random.deploy(addr(admin))
-            SVG.deploy(addr(admin))
             ic = iColorsNFT.deploy(addr(admin))
 
             color1 = 255+120*1000+10*1000*1000
@@ -51,10 +48,7 @@ def main():
             # ic.safeTransferFrom(admin, iwan, 1, 5, '', addr(admin))
 
         if active_network in TEST_NETWORKS:
-            if len(Random) == 0:
-                Random.deploy(addr(admin))
-            if len(SVG) == 0:
-                SVG.deploy(addr(admin))
+            ic = iColorsNFT[-1]
 
     except Exception:
         console.print_exception()

@@ -9,26 +9,72 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-            Random.deploy(addr(admin))
-            SVG.deploy(addr(admin))
-            Random.deploy(addr(admin))
-            SVG.deploy(addr(admin))
             ic = iColorsNFT.deploy(addr(admin))
-            ic.registerPublisher(
-                "HOBBY", "HOBBY is a community for yougth", addr(creator))
-            ic.publish(['SPORTS', 'MUSIC'], ["chartreuse",
-                       "crimson"], [25, 26], addr(creator))
-            ic.publish(['SPORTS', 'ART'], ["chartreuse",
-                       "cornsilk"], [25, 26], addr(creator))
+
+            color1 = 255+120*1000+10*1000*1000
+            color2 = 2 + 175*1000 + 255*1000*1000
+            color3 = 175 + 100*1000 + 25*1000*1000
+            color4 = 200 + 123*1000 + 45*1000*1000
+
+            tx1(ic.publish("HOBBY", "HOBBY is a community for yougth",
+                           [color1, color2],
+                           ['SPORTS', 'MUSIC'],
+                           [20, 25],
+                           addr2(creator, 0.2*10**18)))
+
+            tx1(ic.publish('', '',
+                           [color2, color3],
+                           ['MUSIC', 'ART'],
+                           [15, 45],
+                           addr2(creator, 0.2*10**18)))
+
+            tx1(ic.publish("IWAN", "Iwan is a baobao",
+                           [color4],
+                           ['COLOR4'],
+                           [45],
+                           addr2(iwan, 0.2*10**18)))
+
+            tx3(ic.mint(consumer, color1, 5, addr2(creator, 500)))
+
+            tx3(ic.mint(consumer, color2, 5, addr2(creator, 500)))
+
+            tx3(ic.mint(consumer, color3, 5, addr2(creator, 500)))
+
+            tx3(ic.mint(consumer, color4, 5, addr2(iwan, 500)))
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
-            ic.registerPublisher(
-                "HOBBY", "HOBBY is a community for yougth", addr(creator))
-            ic.publish(['SPORTS', 'MUSIC'], ["chartreuse",
-                       "crimson"], [25, 26], addr(creator))
-            ic.publish(['SPORTS', 'ART'], ["chartreuse",
-                       "cornsilk"], [25, 26], addr(creator))
+
+            color1 = 255+120*1000+10*1000*1000
+            color2 = 2 + 175*1000 + 255*1000*1000
+            color3 = 175 + 100*1000 + 25*1000*1000
+            color4 = 200 + 123*1000 + 45*1000*1000
+
+            tx1(ic.publish("HOBBY", "HOBBY is a community for yougth",
+                           [color1, color2],
+                           ['SPORTS', 'MUSIC'],
+                           [20, 25],
+                           addr2(creator, 0.01*10**18)))
+
+            tx1(ic.publish('', '',
+                           [color2, color3],
+                           ['MUSIC', 'ART'],
+                           [15, 45],
+                           addr2(creator, 0.01*10**18)))
+
+            tx1(ic.publish("IWAN", "Iwan is a baobao",
+                           [color4],
+                           ['COLOR4'],
+                           [45],
+                           addr2(iwan, 0.01*10**18)))
+
+            tx3(ic.mint(consumer, color1, 5, addr2(creator, 500)))
+
+            tx3(ic.mint(consumer, color2, 5, addr2(creator, 500)))
+
+            tx3(ic.mint(consumer, color3, 5, addr2(creator, 500)))
+
+            tx3(ic.mint(consumer, color4, 5, addr2(iwan, 500)))
 
     except Exception:
         console.print_exception()

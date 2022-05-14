@@ -1,4 +1,4 @@
-from brownie import testContract, SVG, Random, iColorsNFT, accounts, network, config
+from brownie import testContract, iColorsNFT, accounts, network, config
 from scripts.tools import *
 import os
 from selenium import webdriver
@@ -72,18 +72,21 @@ def chrome():
 
 
 def tx1(tx):
+    return
     tx.wait(1)
     print(
         f"Address {tx.events[-1]['from']} Fee: {tx.events[-1]['fee']} , {tx.events[-1]['count']} color(s)")
 
 
 def tx2(tx):
+    return
     tx.wait(1)
     print(tx.events)
     #print(f"{tx.events[1]['color']}({tx.events[1]['amount']}) minted, fee: {tx.events[1]['fee']}")
 
 
 def tx3(tx):
+    return
     tx.wait(1)
     print(
         f"{tx.events[-1]['color']}({tx.events[-1]['amount']}) minted, fee: {tx.events[-1]['fee']}")
