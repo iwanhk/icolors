@@ -21,8 +21,7 @@ import "./ERC721A.sol";
 contract iColorsNFT is Ownable, ERC721A {
     using Strings for uint256;
 
-    event Charged(address from, uint256 fee);
-    event Published(address from, uint256 count);
+    event Published(address from, uint256 count, uint256 fee);
     event Minted(
         address from,
         address to,
@@ -55,7 +54,8 @@ contract iColorsNFT is Ownable, ERC721A {
     mapping(uint256 => Color) public colors;
     address[] public globalTokens;
 
-    uint256 public Price = 1;
+    uint256 public Rate = 1;
+    uint256 public Floor = 0.1 ether;
 
     modifier tokenExist(uint256 tokenId) {
         require(_exists(tokenId), "Nonexistent token");
@@ -125,13 +125,14 @@ contract iColorsNFT is Ownable, ERC721A {
             }
         } else {
             // New publisher, first time publish
+
             publishers[msg.sender] = Publisher(
                 _colors,
                 _name,
                 _description,
                 true
             );
-            weight += bytes(_name).length + bytes(_description).length;
+            weight += Floor + bytes(_name).length + bytes(_description).length;
 
             for (uint256 i = 0; i < _colors.length; i++) {
                 require(
@@ -143,11 +144,10 @@ contract iColorsNFT is Ownable, ERC721A {
                 weight += bytes(_attrs[i]).length * _amounts[i];
             }
         }
-        require(msg.value >= weight * Price, "Not enought funds");
-        payable(msg.sender).transfer(msg.value - weight * Price);
+        require(msg.value >= weight * Rate, "Not enought funds");
+        payable(msg.sender).transfer(msg.value - weight * Rate);
 
-        emit Charged(msg.sender, weight * Price);
-        emit Published(msg.sender, _colors.length);
+        emit Published(msg.sender, _colors.length, weight * Rate);
     }
 
     function mint(
@@ -169,7 +169,7 @@ contract iColorsNFT is Ownable, ERC721A {
             holders[_to].amounts.push(_amount);
             globalTokens.push(_to);
 
-            _mint(_to, 1);
+            _safeMint(_to, 1);
         } else {
             // add the color to previour list
             uint256 size = holders[_to].colorList.length;
@@ -177,6 +177,7 @@ contract iColorsNFT is Ownable, ERC721A {
             for (i = 0; i < size; i++) {
                 if (holders[_to].colorList[i] == _color) {
                     holders[_to].amounts[i] += _amount;
+                    break;
                 }
             }
 
@@ -190,20 +191,64 @@ contract iColorsNFT is Ownable, ERC721A {
         colors[_color].amount -= _amount;
 
         uint256 weight = bytes(colors[_color].attr).length * _amount;
-        require(msg.value >= weight * Price, "Not enought funds");
-        payable(msg.sender).transfer(msg.value - weight * Price);
+        require(msg.value >= weight * Rate, "Not enought funds");
+        payable(msg.sender).transfer(msg.value - weight * Rate);
 
         emit Minted(
             msg.sender,
             _to,
             colors[_color].attr,
             _amount,
-            weight * Price
+            weight * Rate
         );
     }
 
-    function setPrice(uint256 _price) external onlyOwner {
-        Price = _price;
+    function _beforeTokenTransfers(
+        address _from,
+        address _to,
+        uint256 _tokenId,
+        uint256 _amount
+    ) internal virtual override {
+        if (_from == address(0) || _to == address(0)) {
+            // ignore mint or burn
+            return;
+        }
+
+        require(_amount > 0, "0 amount to transfer");
+        Holder memory _From = holders[_from];
+
+        if (!holders[_to].exists) {
+            // This is first time mint to a holder
+
+            holders[_to] = _From;
+            globalTokens[_tokenId] = _to;
+        } else {
+            // add the color to previour list
+            uint256 j;
+            uint256 size = holders[_to].colorList.length;
+            for (j = 0; j < _From.colorList.length; j++) {
+                uint256 i;
+                for (i = 0; i < size; i++) {
+                    if (holders[_to].colorList[i] == _From.colorList[j]) {
+                        holders[_to].amounts[i] += _From.amounts[j];
+                        break;
+                    }
+                }
+                if (i == size) {
+                    // merge colors
+                    holders[_to].colorList.push(_From.colorList[j]);
+                    holders[_to].amounts.push(_From.amounts[j]);
+                }
+            }
+            delete globalTokens[_tokenId];
+            _burn(_tokenId);
+        }
+        delete holders[_from];
+    }
+
+    function setPrice(uint256 _Floor, uint256 _Rate) external onlyOwner {
+        Rate = _Rate;
+        Floor = _Floor;
     }
 
     function tokenURI(uint256 tokenId)
