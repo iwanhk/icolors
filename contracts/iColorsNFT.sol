@@ -18,7 +18,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC721A.sol";
 import "./Base64.sol";
-import "./Random.sol";
 
 contract iColorsNFT is Ownable, ERC721A {
     using Strings for uint256;
