@@ -49,7 +49,7 @@ def main():
             color2 = 2 + 175*1000 + 255*1000*1000
             color3 = 175 + 100*1000 + 25*1000*1000
             color4 = 200 + 123*1000 + 45*1000*1000
-
+            """
             tx1(ic.publish("HOBBY", "HOBBY is a community for yougth",
                            [color1, color2],
                            ['SPORTS', 'MUSIC'],
@@ -75,6 +75,15 @@ def main():
             tx3(ic.mint(consumer, color3, 5, addr2(creator, 500)))
 
             tx3(ic.mint(consumer, color4, 5, addr2(iwan, 500)))
+            """
+            ic.mint(iwan, color1, 5, addr2(creator, 500))
+            ic.mint(iwan, color3, 5, addr2(creator, 500))
+
+            ic.mint(creator, color1, 5, addr2(creator, 500))
+
+            ic.mint(admin, color1, 5, addr2(creator, 500))
+            ic.mint(admin, color2, 5, addr2(creator, 500))
+            ic.mint(admin, color3, 5, addr2(creator, 500))
 
     except Exception:
         console.print_exception()

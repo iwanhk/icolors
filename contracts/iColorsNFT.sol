@@ -68,16 +68,6 @@ contract iColorsNFT is Ownable, ERC721A {
         _;
     }
 
-    modifier onlyPublisher() {
-        require(publishers[msg.sender].exists, "Only Publisher");
-        _;
-    }
-
-    modifier onlyHolder() {
-        require(holders[msg.sender].exists, "Only Holder");
-        _;
-    }
-
     constructor() ERC721A("iColors.NFT", "ICS") {}
 
     function publish(
@@ -155,7 +145,7 @@ contract iColorsNFT is Ownable, ERC721A {
         address _to,
         uint256 _color,
         uint256 _amount
-    ) external payable onlyPublisher {
+    ) external payable {
         require(_amount > 0, "0 amount to mint");
         require(_to != address(0), "address 0 to mint");
         require(colors[_color].publisher == msg.sender, "Not owner");
@@ -192,7 +182,7 @@ contract iColorsNFT is Ownable, ERC721A {
         colors[_color].amount -= _amount;
 
         uint256 weight = bytes(colors[_color].attr).length * _amount;
-        require(msg.value >= weight * Rate, "Not enought funds");
+        require(msg.value >= weight * Rate, "No enought funds");
         payable(msg.sender).transfer(msg.value - weight * Rate);
 
         emit Minted(
@@ -269,9 +259,9 @@ contract iColorsNFT is Ownable, ERC721A {
         bytes memory uriBuffer;
 
         uriBuffer = abi.encodePacked(
-            '{"name": "iColors#',
-            tokenId.toString(),
-            '", "description": "iColors: I am just yet another color"',
+            '{"name": "iColors[Traits:',
+            length.toString(),
+            ']", "description": "iColors: I am just yet another color"',
             ', "image_data": "',
             "data:image/svg+xml;base64,",
             Base64.encode(svgImage(tokenId)),

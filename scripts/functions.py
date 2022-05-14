@@ -37,7 +37,7 @@ def get_accounts(active_network):
     balance_alert(admin, "admin")
     balance_alert(creator, "creator")
     balance_alert(consumer, "consumer")
-    balance_alert(iwan, "consumer")
+    balance_alert(iwan, "iwan")
     return [admin, creator, consumer, iwan]
 
 
