@@ -27,26 +27,26 @@ contract iColorsNFT is Ownable, ERC721A {
         address from,
         address to,
         string color,
-        uint256 amount,
+        uint24 amount,
         uint256 fee
     );
 
     struct Publisher {
-        uint256[] colorList;
+        uint24[] colorList;
         string name;
         string description;
         bool exists;
     }
 
     struct Holder {
-        uint256[] colorList;
-        uint256[] amounts;
+        uint24[] colorList;
+        uint24[] amounts;
         bool exists;
     }
 
     struct Color {
         string attr;
-        uint256 amount;
+        uint24 amount;
         address publisher;
     }
 
@@ -55,7 +55,7 @@ contract iColorsNFT is Ownable, ERC721A {
     mapping(uint256 => Color) colors;
     address[] globalTokens;
 
-    uint256 public Rate = 1;
+    uint256 public Rate = 10;
     uint256 public Floor = 0.001 ether;
 
     modifier tokenExist(uint256 tokenId) {
@@ -73,9 +73,9 @@ contract iColorsNFT is Ownable, ERC721A {
     function publish(
         string calldata _name,
         string calldata _description,
-        uint256[] calldata _colors,
-        string[] calldata _attrs,
-        uint256[] calldata _amounts
+        uint24[] calldata _colors,
+        uint24[] calldata _amounts,
+        string[] calldata _attrs
     ) external payable {
         uint256 weight = 0;
 
@@ -135,7 +135,7 @@ contract iColorsNFT is Ownable, ERC721A {
                 weight += bytes(_attrs[i]).length * _amounts[i];
             }
         }
-        require(msg.value >= weight * Rate, "Not enought funds");
+        require(msg.value >= weight * Rate, "No enought funds");
         payable(msg.sender).transfer(msg.value - weight * Rate);
 
         emit Published(msg.sender, _colors.length, weight * Rate);
@@ -143,8 +143,8 @@ contract iColorsNFT is Ownable, ERC721A {
 
     function mint(
         address _to,
-        uint256 _color,
-        uint256 _amount
+        uint24 _color,
+        uint24 _amount
     ) external payable {
         require(_amount > 0, "0 amount to mint");
         require(_to != address(0), "address 0 to mint");
@@ -153,7 +153,7 @@ contract iColorsNFT is Ownable, ERC721A {
 
         if (!holders[_to].exists) {
             // This is first time mint to a holder
-            uint256[] memory blank = new uint256[](0);
+            uint24[] memory blank = new uint24[](0);
 
             holders[_to] = Holder(blank, blank, true);
             holders[_to].colorList.push(_color);
@@ -274,7 +274,7 @@ contract iColorsNFT is Ownable, ERC721A {
                 '{"trait_type": "',
                 _color.attr,
                 '", "value": "',
-                _holder.amounts[i].toString(),
+                uint256(_holder.amounts[i]).toString(),
                 '"},'
             );
         }
@@ -297,30 +297,38 @@ contract iColorsNFT is Ownable, ERC721A {
     function svgImage(uint256 tokenId) internal view returns (bytes memory) {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 count = _holder.colorList.length;
+        uint256 weight = 0;
         bytes
             memory buffer = '<?xml version="1.0"?><svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"> ';
+        for (uint256 i = 0; i < count; i++) {
+            weight += _holder.amounts[i];
+        }
+        uint256 _width = 500 / weight == 0 ? 1 : 500 / weight;
+        uint256 _x = 0;
 
-        uint256 _width = 500 / count;
         for (uint256 i = 0; i < count; ++i) {
-            uint256 _colorValue = _holder.colorList[i];
-            uint256 r = _colorValue % 1000;
-            uint256 g = (_colorValue / 1000) % 1000;
-            uint256 b = (_colorValue / 1000 / 1000) % 1000;
+            uint24 _colorValue = _holder.colorList[i];
+            uint24 _amount = _holder.amounts[i];
+
+            uint8 r = uint8(_colorValue >> 16);
+            uint8 g = uint8((_colorValue << 8) >> 16);
+            uint8 b = uint8((_colorValue << 16) >> 16);
 
             buffer = abi.encodePacked(
                 buffer,
                 ' <rect x="',
-                (_width * i).toString(),
+                _x.toString(),
                 '" y="0" width="',
-                _width.toString(),
+                (_width * _amount).toString(),
                 '" height="500" style="fill:rgb(',
-                r.toString(),
+                uint256(r).toString(),
                 ",",
-                g.toString(),
+                uint256(g).toString(),
                 ",",
-                b.toString(),
+                uint256(b).toString(),
                 ')"/> '
             );
+            _x += _width * _amount;
         }
 
         return abi.encodePacked(buffer, "</svg>");
@@ -348,7 +356,7 @@ contract iColorsNFT is Ownable, ERC721A {
                     info,
                     _color.attr,
                     ": ",
-                    holders[owner].amounts[i].toString(),
+                    uint256(holders[owner].amounts[i]).toString(),
                     "\n"
                 )
             );
@@ -376,7 +384,7 @@ contract iColorsNFT is Ownable, ERC721A {
                     info,
                     _color.attr,
                     ": ",
-                    _color.amount.toString(),
+                    uint256(_color.amount).toString(),
                     "\n"
                 )
             );

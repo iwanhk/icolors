@@ -17,6 +17,19 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC721A.sol";
 
+contract testHex {
+    uint256 public value;
+    uint8 public r;
+    uint8 public g;
+    uint8 public b;
+
+    function set(uint24 _value) public {
+        r = uint8(_value >> 16);
+        g = uint8((_value << 8) >> 16);
+        b = uint8((_value << 16) >> 16);
+    }
+}
+
 contract testMint is ERC721A {
     using Strings for uint256;
 

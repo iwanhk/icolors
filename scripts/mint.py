@@ -11,80 +11,58 @@ def main():
         if active_network in LOCAL_NETWORKS:
             ic = iColorsNFT.deploy(addr(admin))
 
-            color1 = 255+120*1000+10*1000*1000
-            color2 = 2 + 175*1000 + 255*1000*1000
-            color3 = 175 + 100*1000 + 25*1000*1000
-            color4 = 200 + 123*1000 + 45*1000*1000
+            colorData, hobbyData, publisherData = loadData()
 
-            tx1(ic.publish("HOBBY", "HOBBY is a community for yougth",
-                           [color1, color2],
-                           ['SPORTS', 'MUSIC'],
-                           [20, 25],
-                           addr2(creator, 0.2*10**18)))
+            amount = len(colorData)
 
-            tx1(ic.publish('', '',
-                           [color2, color3],
-                           ['MUSIC', 'ART'],
-                           [15, 45],
-                           addr2(creator, 0.2*10**18)))
+            tx1(ic.publish(publisherData[0]['publisher'], publisherData[0]['description'],
+                           list(map(lambda x: int(x.replace('#', '0x'), 0),
+                                list(colorData.keys()))),
+                           [20000] * amount,
+                           list(colorData.values()),
+                           addr2(creator, 0.1*10**18)))
 
-            tx1(ic.publish("IWAN", "Iwan is a baobao",
-                           [color4],
-                           ['COLOR4'],
-                           [45],
-                           addr2(iwan, 0.2*10**18)))
+            # Mint for iwan
+            round = random.randint(1, 50)
+            for r in range(round):
+                color = random.choice(list(colorData.keys()))
+                tx3(ic.mint(iwan, int(color.replace('#', '0x'), 0),
+                            random.randint(1, 1), addr2(creator, 5000)))
 
-            tx3(ic.mint(consumer, color1, 5, addr2(creator, 500)))
+            round = random.randint(1, 50)
+            for r in range(round):
+                color = random.choice(list(colorData.keys()))
+                tx3(ic.mint(consumer, int(color.replace('#', '0x'), 0),
+                            random.randint(1, 1), addr2(creator, 5000)))
 
-            tx3(ic.mint(consumer, color2, 5, addr2(creator, 500)))
-
-            tx3(ic.mint(consumer, color3, 5, addr2(creator, 500)))
-
-            tx3(ic.mint(consumer, color4, 5, addr2(iwan, 500)))
+            round = random.randint(1, 50)
+            for r in range(round):
+                color = random.choice(list(colorData.keys()))
+                tx3(ic.mint(admin, int(color.replace('#', '0x'), 0),
+                            random.randint(1, 1), addr2(creator, 5000)))
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
+            colorData, hobbyData, publisherData = loadData()
 
-            color1 = 255+120*1000+10*1000*1000
-            color2 = 2 + 175*1000 + 255*1000*1000
-            color3 = 175 + 100*1000 + 25*1000*1000
-            color4 = 200 + 123*1000 + 45*1000*1000
-            """
-            tx1(ic.publish("HOBBY", "HOBBY is a community for yougth",
-                           [color1, color2],
-                           ['SPORTS', 'MUSIC'],
-                           [20, 25],
-                           addr2(creator, 0.01*10**18)))
+            # Mint for iwan
+            round = random.randint(1, 15)
+            for r in range(round):
+                color = random.choice(list(colorData.keys()))
+                ic.mint(iwan, int(color.replace('#', '0x'), 0),
+                        random.randint(1, 1), addr2(creator, 5000))
 
-            tx1(ic.publish('', '',
-                           [color2, color3],
-                           ['MUSIC', 'ART'],
-                           [15, 45],
-                           addr2(creator, 0.01*10**18)))
+            round = random.randint(1, 15)
+            for r in range(round):
+                color = random.choice(list(colorData.keys()))
+                ic.mint(consumer, int(color.replace('#', '0x'), 0),
+                        random.randint(1, 1), addr2(creator, 5000))
 
-            tx1(ic.publish("IWAN", "Iwan is a baobao",
-                           [color4],
-                           ['COLOR4'],
-                           [45],
-                           addr2(iwan, 0.01*10**18)))
-
-            tx3(ic.mint(consumer, color1, 5, addr2(creator, 500)))
-
-            tx3(ic.mint(consumer, color2, 5, addr2(creator, 500)))
-
-            tx3(ic.mint(consumer, color3, 5, addr2(creator, 500)))
-
-            tx3(ic.mint(consumer, color4, 5, addr2(iwan, 500)))
-            """
-            ic.mint(iwan, color1, 5, addr2(creator, 500))
-            ic.mint(iwan, color3, 5, addr2(creator, 500))
-
-            ic.mint(creator, color1, 5, addr2(creator, 500))
-
-            ic.mint(admin, color1, 5, addr2(creator, 500))
-            ic.mint(admin, color2, 5, addr2(creator, 500))
-            ic.mint(admin, color3, 5, addr2(creator, 500))
-
+            round = random.randint(1, 15)
+            for r in range(round):
+                color = random.choice(list(colorData.keys()))
+                ic.mint(admin, int(color.replace('#', '0x'), 0),
+                        random.randint(1, 1), addr2(creator, 5000))
     except Exception:
         console.print_exception()
         # Test net contract address

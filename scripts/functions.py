@@ -1,6 +1,7 @@
 from brownie import testContract, iColorsNFT, accounts, network, config
 from scripts.tools import *
 import os
+import random
 from selenium import webdriver
 
 D18 = 10**18
@@ -72,21 +73,33 @@ def chrome():
 
 
 def tx1(tx):
-    return
     tx.wait(1)
     print(
         f"Address {tx.events[-1]['from']} Fee: {tx.events[-1]['fee']} , {tx.events[-1]['count']} color(s)")
 
 
 def tx2(tx):
-    return
     tx.wait(1)
     print(tx.events)
-    #print(f"{tx.events[1]['color']}({tx.events[1]['amount']}) minted, fee: {tx.events[1]['fee']}")
+    # print(f"{tx.events[1]['color']}({tx.events[1]['amount']}) minted, fee: {tx.events[1]['fee']}")
 
 
 def tx3(tx):
-    return
     tx.wait(1)
     print(
         f"{tx.events[-1]['color']}({tx.events[-1]['amount']}) minted, fee: {tx.events[-1]['fee']}")
+
+
+def color():
+    return random.randint(0, 255)+random.randint(0, 255) << 8+random.randint(0, 255) << 16
+
+
+def loadData():
+    with open('colors.json', 'r') as f:
+        colorData = json.load(f)
+    with open('hobbies.json', 'r') as f:
+        hobbyData = json.load(f)
+    with open('publisher.json', 'r') as f:
+        publisherData = json.load(f)
+
+    return (colorData, hobbyData, publisherData)

@@ -1,0 +1,26 @@
+{
+  "name": "icolors",
+  "version": "1.0.0",
+  "description": "### Data: 2022.5.3",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iwanhk/icolors.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iwanhk/icolors/issues"
+  },
+  "homepage": "https://github.com/iwanhk/icolors#readme",
+  "devDependencies": {
+    "hardhat": "^2.9.5"
+  }
+}
