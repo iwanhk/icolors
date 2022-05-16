@@ -9,18 +9,20 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-            ic = iColorsNFT.deploy(addr(admin))
+            i = iColors.deploy(addr(admin))
+            ic = iColorsNFT.deploy(i, addr(admin))
+            i.transferOwnership(ic, addr(admin))
 
             colorData, hobbyData, publisherData = loadData()
 
             amount = len(colorData)
 
-            tx1(ic.publish(publisherData[0]['publisher'], publisherData[0]['description'],
-                           list(map(lambda x: int(x.replace('#', '0x'), 0),
-                                list(colorData.keys()))),
-                           [20000] * amount,
-                           list(colorData.values()),
-                           addr2(creator, 0.1*10**18)))
+            i.publish(publisherData[0]['publisher'], publisherData[0]['description'],
+                      list(map(lambda x: int(x.replace('#', '0x'), 0),
+                               list(colorData.keys()))),
+                      [30000] * amount,
+                      list(colorData.values()),
+                      addr2(creator, 0.1*10**18))
 
             # Mint for iwan
             round = random.randint(1, 50)

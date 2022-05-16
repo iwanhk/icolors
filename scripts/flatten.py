@@ -8,9 +8,11 @@ def main():
     admin, creator, consumer, iwan = get_accounts(active_network)
 
     try:
-        iColorsNFT.deploy(addr(admin))
+        ic = iColors.deploy(addr(admin))
+        iColorsNFT.deploy(ic, addr(admin))
 
         flat_contract('iColorsNFT', iColorsNFT.get_verification_info())
+        flat_contract('iColors', iColors.get_verification_info())
 
     except Exception:
         console.print_exception()

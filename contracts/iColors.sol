@@ -14,12 +14,11 @@ pragma solidity ^0.8.4;
    \/__/        \:\__\        \::/  /       \:\__\    \::/  /       |:|  |        \::/  /   
                  \/__/         \/__/         \/__/     \/__/         \|__|         \/__/    
 */
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "./ERC721A.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Base64.sol";
 
-contract iColorsNFT is Ownable, ERC721A {
+contract iColors is Ownable {
     using Strings for uint256;
 
     event Published(address from, uint256 count, uint256 fee);
@@ -54,22 +53,19 @@ contract iColorsNFT is Ownable, ERC721A {
     mapping(address => Holder) holders;
     mapping(uint256 => Color) colors;
     address[] globalTokens;
-    mapping(address => string) showNames;
 
     uint256 public Rate = 1;
     uint256 public Floor = 0.0001 ether;
 
-    modifier tokenExist(uint256 tokenId) {
-        require(_exists(tokenId), "Nonexistent token");
-        _;
+    constructor() {}
+
+    function holder(uint256 tokenId) external view returns (address) {
+        return globalTokens[tokenId];
     }
 
-    modifier ownerOfToken(uint256 tokenId) {
-        require(ownerOf(tokenId) == msg.sender, "Only Owner");
-        _;
+    function isHolder(address who) external view returns (bool) {
+        return holders[who].exists;
     }
-
-    constructor() ERC721A("iColors.NFT", "ICO") {}
 
     function publish(
         string calldata _name,
@@ -85,7 +81,7 @@ contract iColorsNFT is Ownable, ERC721A {
                 // Only change name when not empty
                 publishers[msg.sender].name = _name;
                 publishers[msg.sender].description = _description;
-                weight += bytes(_name).length + bytes(_description).length;
+                weight = bytes(_name).length + bytes(_description).length;
             }
             // search very color to merge them
             uint256 size = publishers[msg.sender].colorList.length;
@@ -124,7 +120,7 @@ contract iColorsNFT is Ownable, ERC721A {
                 _description,
                 true
             );
-            weight += Floor + bytes(_name).length + bytes(_description).length;
+            weight = Floor + bytes(_name).length + bytes(_description).length;
 
             for (uint256 i = 0; i < _colors.length; i++) {
                 require(
@@ -136,21 +132,21 @@ contract iColorsNFT is Ownable, ERC721A {
                 weight += bytes(_attrs[i]).length * _amounts[i];
             }
         }
+
         require(msg.value >= weight * Rate, "No enought funds");
         payable(msg.sender).transfer(msg.value - weight * Rate);
-
-        emit Published(msg.sender, _colors.length, weight * Rate);
+        emit Published(msg.sender, _colors.length, weight);
     }
 
     function mint(
+        address _who,
         address _to,
         uint24 _color,
         uint24 _amount
-    ) external payable {
-        require(_amount > 0, "0 amount to mint");
-        require(_to != address(0), "address 0 to mint");
-        require(colors[_color].publisher == msg.sender, "Not owner");
+    ) external payable returns (uint256, bool) {
+        require(colors[_color].publisher == _who, "Not owner");
         require(colors[_color].amount >= _amount, "No enough color items");
+        bool doMint = false;
 
         if (!holders[_to].exists) {
             // This is first time mint to a holder
@@ -161,7 +157,7 @@ contract iColorsNFT is Ownable, ERC721A {
             holders[_to].amounts.push(_amount);
             globalTokens.push(_to);
 
-            _safeMint(_to, 1);
+            doMint = true;
         } else {
             // add the color to previour list
             uint256 size = holders[_to].colorList.length;
@@ -183,30 +179,17 @@ contract iColorsNFT is Ownable, ERC721A {
         colors[_color].amount -= _amount;
 
         uint256 weight = bytes(colors[_color].attr).length * _amount;
-        require(msg.value >= weight * Rate, "No enought funds");
-        payable(msg.sender).transfer(msg.value - weight * Rate);
 
-        emit Minted(
-            msg.sender,
-            _to,
-            colors[_color].attr,
-            _amount,
-            weight * Rate
-        );
+        emit Minted(_who, _to, colors[_color].attr, _amount, weight);
+
+        return (weight, doMint);
     }
 
     function _beforeTokenTransfers(
         address _from,
         address _to,
-        uint256 _tokenId,
-        uint256 _amount
-    ) internal virtual override {
-        if (_from == address(0) || _to == address(0)) {
-            // ignore mint or burn
-            return;
-        }
-
-        require(_amount > 0, "0 amount to transfer");
+        uint256 _tokenId
+    ) external onlyOwner returns (bool) {
         Holder memory _From = holders[_from];
 
         if (!holders[_to].exists) {
@@ -214,6 +197,8 @@ contract iColorsNFT is Ownable, ERC721A {
 
             holders[_to] = _From;
             globalTokens[_tokenId] = _to;
+            delete holders[_from];
+            return false;
         } else {
             // add the color to previour list
             uint256 j;
@@ -233,32 +218,21 @@ contract iColorsNFT is Ownable, ERC721A {
                 }
             }
             delete globalTokens[_tokenId];
-            _burn(_tokenId);
+            delete holders[_from];
+            return true;
         }
-        delete holders[_from];
     }
 
-    function setPrice(uint256 _Floor, uint256 _Rate) external onlyOwner {
-        Rate = _Rate;
-        Floor = _Floor;
-    }
-
-    function withDraw() external onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-
-    function tokenURI(uint256 tokenId)
+    function tokenURI(uint256 tokenId, string calldata tokenShowName)
         public
         view
-        virtual
-        override
-        tokenExist(tokenId)
+        onlyOwner
         returns (string memory)
     {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 length = _holder.colorList.length;
         bytes memory uriBuffer;
-        bytes memory _name = bytes(showNames[globalTokens[tokenId]]);
+        bytes memory _name = bytes(tokenShowName);
         if (_name.length == 0) {
             // No name set
             _name = abi.encodePacked("iColors#", tokenId.toString(), "*");
@@ -408,31 +382,12 @@ contract iColorsNFT is Ownable, ERC721A {
         }
     }
 
-    function setShowName(string calldata _name) external {
-        require(holders[msg.sender].exists, "Not NFT owner");
-        bytes memory buffer = bytes(_name);
+    function withdraw(address payable _who) external onlyOwner {
+        _who.transfer(address(this).balance);
+    }
 
-        // remove the ⭐️ if user set it
-        if (buffer.length >= 6) {
-            for (uint256 i = 0; i < buffer.length - 5; i++) {
-                if (
-                    buffer[i] == 0xe2 &&
-                    buffer[i + 1] == 0xad &&
-                    buffer[i + 2] == 0x90 &&
-                    buffer[i + 3] == 0xef &&
-                    buffer[i + 4] == 0xb8 &&
-                    buffer[i + 5] == 0x8f
-                ) {
-                    buffer[i] = " ";
-                    buffer[i + 1] = " ";
-                    buffer[i + 2] = " ";
-                    buffer[i + 3] = " ";
-                    buffer[i + 4] = " ";
-                    buffer[i + 5] = " ";
-                }
-            }
-        }
-
-        showNames[msg.sender] = string(buffer);
+    function setPrice(uint256 _Floor, uint256 _Rate) external onlyOwner {
+        Rate = _Rate;
+        Floor = _Floor;
     }
 }
