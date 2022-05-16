@@ -54,9 +54,10 @@ contract iColorsNFT is Ownable, ERC721A {
     mapping(address => Holder) holders;
     mapping(uint256 => Color) colors;
     address[] globalTokens;
+    mapping(address => string) showNames;
 
-    uint256 public Rate = 10;
-    uint256 public Floor = 0.001 ether;
+    uint256 public Rate = 1;
+    uint256 public Floor = 0.0001 ether;
 
     modifier tokenExist(uint256 tokenId) {
         require(_exists(tokenId), "Nonexistent token");
@@ -257,11 +258,27 @@ contract iColorsNFT is Ownable, ERC721A {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 length = _holder.colorList.length;
         bytes memory uriBuffer;
+        bytes memory _name = bytes(showNames[globalTokens[tokenId]]);
+        if (_name.length == 0) {
+            // No name set
+            _name = abi.encodePacked("iColors#", tokenId.toString(), "*");
+        }
+
+        if (_name[_name.length - 1] == "*") {
+            // remove the last '*'
+            assembly {
+                mstore(_name, sub(mload(_name), 1))
+            }
+            for (uint256 i = 0; i < length; i++) {
+                // ⭐️ = "\xe2\xad\x90\xef\xb8\x8f"
+                _name = abi.encodePacked(_name, "\xe2\xad\x90\xef\xb8\x8f");
+            }
+        }
 
         uriBuffer = abi.encodePacked(
-            '{"name": "iColors[Traits:',
-            length.toString(),
-            ']", "description": "iColors: I am just yet another color"',
+            '{"name": "',
+            _name,
+            '", "description": "iColors: I am just yet another color"',
             ', "image_data": "',
             "data:image/svg+xml;base64,",
             Base64.encode(svgImage(tokenId)),
@@ -389,5 +406,33 @@ contract iColorsNFT is Ownable, ERC721A {
                 )
             );
         }
+    }
+
+    function setShowName(string calldata _name) external {
+        require(holders[msg.sender].exists, "Not NFT owner");
+        bytes memory buffer = bytes(_name);
+
+        // remove the ⭐️ if user set it
+        if (buffer.length >= 6) {
+            for (uint256 i = 0; i < buffer.length - 5; i++) {
+                if (
+                    buffer[i] == 0xe2 &&
+                    buffer[i + 1] == 0xad &&
+                    buffer[i + 2] == 0x90 &&
+                    buffer[i + 3] == 0xef &&
+                    buffer[i + 4] == 0xb8 &&
+                    buffer[i + 5] == 0x8f
+                ) {
+                    buffer[i] = " ";
+                    buffer[i + 1] = " ";
+                    buffer[i + 2] = " ";
+                    buffer[i + 3] = " ";
+                    buffer[i + 4] = " ";
+                    buffer[i + 5] = " ";
+                }
+            }
+        }
+
+        showNames[msg.sender] = string(buffer);
     }
 }

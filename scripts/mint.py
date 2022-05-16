@@ -46,23 +46,23 @@ def main():
             colorData, hobbyData, publisherData = loadData()
 
             # Mint for iwan
-            round = random.randint(1, 15)
+            round = random.randint(1, 5)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 ic.mint(iwan, int(color.replace('#', '0x'), 0),
-                        random.randint(1, 1), addr2(creator, 5000))
+                        random.randint(1, 3), addr2(creator, 5000))
 
-            round = random.randint(1, 15)
+            round = random.randint(1, 5)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 ic.mint(consumer, int(color.replace('#', '0x'), 0),
-                        random.randint(1, 1), addr2(creator, 5000))
+                        random.randint(1, 3), addr2(creator, 5000))
 
-            round = random.randint(1, 15)
+            round = random.randint(1, 5)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 ic.mint(admin, int(color.replace('#', '0x'), 0),
-                        random.randint(1, 1), addr2(creator, 5000))
+                        random.randint(1, 3), addr2(creator, 5000))
     except Exception:
         console.print_exception()
         # Test net contract address
