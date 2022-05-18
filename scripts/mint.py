@@ -21,7 +21,7 @@ def main():
                       list(map(lambda x: int(x.replace('#', '0x'), 0),
                                list(colorData.keys()))),
                       [30000] * amount,
-                      list(colorData.values()),
+                      hobbyData,
                       addr2(creator, 0.1*10**18))
 
             # Mint for iwan
@@ -29,38 +29,38 @@ def main():
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 tx3(ic.mint(iwan, int(color.replace('#', '0x'), 0),
-                            random.randint(1, 1), addr2(creator, 5000)))
+                            random.randint(1, 15), addr2(creator, 5000)))
 
             round = random.randint(1, 50)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 tx3(ic.mint(consumer, int(color.replace('#', '0x'), 0),
-                            random.randint(1, 1), addr2(creator, 5000)))
+                            random.randint(1, 15), addr2(creator, 5000)))
 
             round = random.randint(1, 50)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 tx3(ic.mint(admin, int(color.replace('#', '0x'), 0),
-                            random.randint(1, 1), addr2(creator, 5000)))
+                            random.randint(1, 15), addr2(creator, 5000)))
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
             colorData, hobbyData, publisherData = loadData()
 
             # Mint for iwan
-            round = random.randint(1, 5)
+            round = random.randint(1, 25)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 ic.mint(iwan, int(color.replace('#', '0x'), 0),
                         random.randint(1, 3), addr2(creator, 5000))
 
-            round = random.randint(1, 5)
+            round = random.randint(1, 25)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 ic.mint(consumer, int(color.replace('#', '0x'), 0),
                         random.randint(1, 3), addr2(creator, 5000))
 
-            round = random.randint(1, 5)
+            round = random.randint(1, 25)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
                 ic.mint(admin, int(color.replace('#', '0x'), 0),

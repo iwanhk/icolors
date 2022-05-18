@@ -40,6 +40,7 @@ contract iColors is Ownable {
     struct Holder {
         uint24[] colorList;
         uint24[] amounts;
+        uint256 globalId;
         bool exists;
     }
 
@@ -51,21 +52,13 @@ contract iColors is Ownable {
 
     mapping(address => Publisher) publishers;
     mapping(address => Holder) holders;
-    mapping(uint256 => Color) colors;
+    mapping(uint24 => Color) colors;
     address[] globalTokens;
 
     uint256 public Rate = 1;
     uint256 public Floor = 0.0001 ether;
 
     constructor() {}
-
-    function holder(uint256 tokenId) external view returns (address) {
-        return globalTokens[tokenId];
-    }
-
-    function isHolder(address who) external view returns (bool) {
-        return holders[who].exists;
-    }
 
     function publish(
         string calldata _name,
@@ -152,7 +145,7 @@ contract iColors is Ownable {
             // This is first time mint to a holder
             uint24[] memory blank = new uint24[](0);
 
-            holders[_to] = Holder(blank, blank, true);
+            holders[_to] = Holder(blank, blank, globalTokens.length, true);
             holders[_to].colorList.push(_color);
             holders[_to].amounts.push(_amount);
             globalTokens.push(_to);
@@ -226,7 +219,6 @@ contract iColors is Ownable {
     function tokenURI(uint256 tokenId, string calldata tokenShowName)
         public
         view
-        onlyOwner
         returns (string memory)
     {
         Holder memory _holder = holders[globalTokens[tokenId]];
@@ -263,6 +255,8 @@ contract iColors is Ownable {
             uriBuffer = abi.encodePacked(
                 uriBuffer,
                 '{"trait_type": "',
+                publishers[_color.publisher].name,
+                ".",
                 _color.attr,
                 '", "value": "',
                 uint256(_holder.amounts[i]).toString(),
@@ -325,7 +319,7 @@ contract iColors is Ownable {
         return abi.encodePacked(buffer, "</svg>");
     }
 
-    function token(uint256 tokenId) external view returns (string memory info) {
+    function token(uint256 tokenId) public view returns (string memory info) {
         address owner = globalTokens[tokenId];
         require(holders[owner].exists, "No holder found");
 
@@ -342,11 +336,16 @@ contract iColors is Ownable {
         uint256 size = holders[owner].colorList.length;
         for (uint256 i = 0; i < size; i++) {
             Color memory _color = colors[holders[owner].colorList[i]];
+
             info = string(
                 abi.encodePacked(
                     info,
+                    publishers[_color.publisher].name,
+                    ".",
                     _color.attr,
-                    ": ",
+                    " (rgb ",
+                    uint256(holders[owner].colorList[i]).toHexString(),
+                    "): ",
                     uint256(holders[owner].amounts[i]).toString(),
                     "\n"
                 )
@@ -354,32 +353,48 @@ contract iColors is Ownable {
         }
     }
 
-    function publisher(address _p) external view returns (string memory info) {
-        if (!publishers[_p].exists) {
-            return "No publisher found";
-        }
-        info = string(
-            abi.encodePacked(
-                "Publisher: ",
-                publishers[_p].name,
-                " \n",
-                publishers[_p].description,
-                "\n"
-            )
-        );
-        uint256 size = publishers[_p].colorList.length;
-        for (uint256 i = 0; i < size; i++) {
-            Color memory _color = colors[publishers[_p].colorList[i]];
-            info = string(
-                abi.encodePacked(
-                    info,
-                    _color.attr,
-                    ": ",
-                    uint256(_color.amount).toString(),
-                    "\n"
-                )
-            );
-        }
+    // function publisher(address _p) external view returns (string memory info) {
+    //     if (!publishers[_p].exists) {
+    //         return "No publisher found";
+    //     }
+    //     info = string(
+    //         abi.encodePacked(
+    //             "Publisher: ",
+    //             publishers[_p].name,
+    //             " \nDescription: ",
+    //             publishers[_p].description,
+    //             "\n"
+    //         )
+    //     );
+    //     uint256 size = publishers[_p].colorList.length;
+    //     for (uint256 i = 0; i < size; i++) {
+    //         uint24 _colorValue = publishers[_p].colorList[i];
+    //         Color memory _color = colors[_colorValue];
+
+    //         info = string(
+    //             abi.encodePacked(
+    //                 info,
+    //                 _color.attr,
+    //                 " (rgb ",
+    //                 uint256(_colorValue).toHexString(),
+    //                 "): ",
+    //                 uint256(_color.amount).toString(),
+    //                 "\n"
+    //             )
+    //         );
+    //     }
+    // }
+
+    function publisher(address _who) external view returns (Publisher memory) {
+        return publishers[_who];
+    }
+
+    function holder(address _who) external view returns (Holder memory) {
+        return holders[_who];
+    }
+
+    function color(uint24 _value) external view returns (Color memory) {
+        return colors[_value];
     }
 
     function withdraw(address payable _who) external onlyOwner {

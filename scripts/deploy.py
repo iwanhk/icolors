@@ -24,7 +24,7 @@ def main():
                       list(map(lambda x: int(x.replace('#', '0x'), 0),
                                list(colorData.keys()))),
                       [30000] * amount,
-                      list(colorData.values()),
+                      hobbyData,
                       addr2(creator, 0.1*10**18))
 
     except Exception:

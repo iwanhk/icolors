@@ -19,14 +19,6 @@ interface IColors {
 
     function isHolder(address who) external view returns (bool);
 
-    function publish(
-        string calldata _name,
-        string calldata _description,
-        uint24[] calldata _colors,
-        uint24[] calldata _amounts,
-        string[] calldata _attrs
-    ) external;
-
     function mint(
         address _from,
         address _to,
