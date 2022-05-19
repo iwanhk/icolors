@@ -73,10 +73,11 @@ def chrome():
 
 
 def tx1(tx):
-    return
     tx.wait(1)
-    print(
-        f"Address {tx.events[-1]['from']} Fee: {tx.events[-1]['fee']} , {tx.events[-1]['count']} color(s)")
+    for event in tx.events:
+        if 'fee' in event:
+            print(
+                f"Address {event['from']} Fee: {event['fee']} , {event['count']} color(s)")
 
 
 def tx2(tx):
@@ -87,10 +88,12 @@ def tx2(tx):
 
 
 def tx3(tx):
-    return
+    # return
     tx.wait(1)
-    print(
-        f"{tx.events[-1]['color']}({tx.events[-1]['amount']}) minted, fee: {tx.events[-1]['fee']}")
+    for event in tx.events:
+        if 'color' in event:
+            print(
+                f"{event['color']}({event['amount']}) minted, fee: {event['fee']}")
 
 
 def color():
