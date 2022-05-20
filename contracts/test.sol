@@ -25,6 +25,17 @@ contract testHex {
     uint8 public r;
     uint8 public g;
     uint8 public b;
+    bytes16 private constant _HEX_SYMBOLS = "0123456789abcdef";
+
+    function toHLHexString(uint24 v) public pure returns (string memory) {
+        bytes memory buffer = new bytes(6);
+        for (uint256 i = 6; i > 0; i--) {
+            buffer[i - 1] = _HEX_SYMBOLS[v & 0xf];
+            v >>= 4;
+        }
+        require(v == 0, "Strings: hex length insufficient");
+        return string(buffer);
+    }
 
     function set(uint24 _value) public {
         r = uint8(_value >> 16);

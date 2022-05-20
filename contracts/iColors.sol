@@ -14,12 +14,13 @@ pragma solidity ^0.8.4;
    \/__/        \:\__\        \::/  /       \:\__\    \::/  /       |:|  |        \::/  /   
                  \/__/         \/__/         \/__/     \/__/         \|__|         \/__/    
 */
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Base64.sol";
+import "./Strings.sol";
 
 contract iColors is Ownable {
     using Strings for uint256;
+    using Strings for uint24;
 
     event Published(address from, uint256 count, uint256 fee);
     event Minted(
@@ -225,6 +226,7 @@ contract iColors is Ownable {
         uint256 length = _holder.colorList.length;
         bytes memory uriBuffer;
         bytes memory _name = bytes(tokenShowName);
+
         if (_name.length == 0) {
             // No name set
             _name = abi.encodePacked("iColors#", tokenId.toString(), "*");
@@ -274,46 +276,39 @@ contract iColors is Ownable {
             string(
                 abi.encodePacked(
                     "data:application/json;base64,",
-                    Base64.encode(bytes(string(abi.encodePacked(uriBuffer))))
+                    Base64.encode(abi.encodePacked(uriBuffer))
                 )
             );
     }
 
-    function svgImage(uint256 tokenId) internal view returns (bytes memory) {
+    function svgImage(uint256 tokenId) public view returns (bytes memory) {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 count = _holder.colorList.length;
         uint256 weight = 0;
         bytes
             memory buffer = '<?xml version="1.0"?><svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"> ';
-        for (uint256 i = 0; i < count; i++) {
+
+        for (uint256 i = 0; i < count; ++i) {
             weight += _holder.amounts[i];
         }
-        uint256 _width = 500 / weight == 0 ? 1 : 500 / weight;
+        uint256 _width = (500 * 100) / weight == 0 ? 1 : (500 * 100) / weight;
         uint256 _x = 0;
 
         for (uint256 i = 0; i < count; ++i) {
             uint24 _colorValue = _holder.colorList[i];
             uint24 _amount = _holder.amounts[i];
 
-            uint8 r = uint8(_colorValue >> 16);
-            uint8 g = uint8((_colorValue << 8) >> 16);
-            uint8 b = uint8((_colorValue << 16) >> 16);
-
             buffer = abi.encodePacked(
                 buffer,
                 ' <rect x="',
                 _x.toString(),
                 '" y="0" width="',
-                (_width * _amount).toString(),
-                '" height="500" style="fill:rgb(',
-                uint256(r).toString(),
-                ",",
-                uint256(g).toString(),
-                ",",
-                uint256(b).toString(),
-                ')"/> '
+                ((_width * _amount) / 100).toString(),
+                '" height="500" style="fill:#',
+                _colorValue.toHLHexString(),
+                '"/> '
             );
-            _x += _width * _amount;
+            _x += 1 + (_width * _amount) / 100;
         }
 
         return abi.encodePacked(buffer, "</svg>");
@@ -343,8 +338,8 @@ contract iColors is Ownable {
                     publishers[_color.publisher].name,
                     ".",
                     _color.attr,
-                    " (rgb ",
-                    uint256(holders[owner].colorList[i]).toHexString(),
+                    " (color #",
+                    holders[owner].colorList[i].toHLHexString(),
                     "): ",
                     uint256(holders[owner].amounts[i]).toString(),
                     "\n"
@@ -391,6 +386,18 @@ contract iColors is Ownable {
 
     function holder(address _who) external view returns (Holder memory) {
         return holders[_who];
+    }
+
+    function holder(uint256 tokenId) external view returns (address) {
+        return globalTokens[tokenId];
+    }
+
+    function holder(uint24[] calldata colorsFilter)
+        external
+        view
+    // returns (address[] calldata _holders)
+    {
+
     }
 
     function color(uint24 _value) external view returns (Color memory) {
