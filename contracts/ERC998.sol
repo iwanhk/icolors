@@ -14,6 +14,17 @@ import "./Base64.sol";
 abstract contract ERC998 is ERC721A, IERC721Receiver {
     using Strings for uint256;
 
+    enum assetType {
+        ERC20,
+        ERC721
+    }
+    struct assetItem {
+        assetType type0;
+        address contract0;
+        uint256 amount;
+        uint256[] ids;
+    }
+
     event Received(address _from, uint256 tokenId);
 
     mapping(uint256 => mapping(address => uint256)) children20;
@@ -159,6 +170,44 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
         }
 
         return content;
+    }
+
+    function assets(uint256 tokenId)
+        internal
+        view
+        returns (assetItem[] memory assetList)
+    {
+        uint256 size = childrenContracts.length;
+        assetItem[] memory _buffer = new assetItem[](size);
+        uint256 _pointer = 0;
+
+        for (uint256 i = 0; i < size; i++) {
+            address _contract = childrenContracts[i];
+            if (children20[tokenId][_contract] != 0) {
+                _buffer[_pointer].amount = children20[tokenId][_contract];
+                _buffer[_pointer].contract0 = _contract;
+                _buffer[_pointer].type0 = assetType.ERC20;
+                _pointer++;
+            }
+        }
+        for (uint256 i = 0; i < size; i++) {
+            address _contract = childrenContracts[i];
+            uint256[] memory _ids = children721[tokenId][_contract];
+
+            if (children721[tokenId][_contract].length != 0) {
+                _buffer[_pointer].ids = _ids;
+                _buffer[_pointer].contract0 = _contract;
+                _buffer[_pointer].type0 = assetType.ERC721;
+                _buffer[_pointer].amount = _ids.length;
+                _pointer++;
+            }
+        }
+
+        assetList = new assetItem[](_pointer);
+        while (_pointer > 0) {
+            assetList[_pointer - 1] = _buffer[_pointer - 1];
+            _pointer--;
+        }
     }
 
     function onERC721Received(
