@@ -404,7 +404,7 @@ contract iColors is Ownable {
         returns (address[] memory _holders)
     {
         uint256 size = globalTokens.length;
-        _holders = new address[](size);
+        address[] memory _buffer = new address[](size);
         uint256 _pointer = 0;
 
         for (uint256 i = 0; i < size; i++) {
@@ -412,10 +412,16 @@ contract iColors is Ownable {
 
             for (uint256 j = 0; j < _holder.colorList.length; j++) {
                 if (colorsFilter == _holder.colorList[j]) {
-                    _holders[_pointer++] = globalTokens[i];
+                    _buffer[_pointer++] = globalTokens[i];
                     break;
                 }
             }
+        }
+
+        _holders = new address[](_pointer);
+        while (_pointer > 0) {
+            _holders[_pointer - 1] = _buffer[_pointer - 1];
+            _pointer--;
         }
     }
 
