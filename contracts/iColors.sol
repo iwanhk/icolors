@@ -217,11 +217,11 @@ contract iColors is Ownable {
         }
     }
 
-    function tokenURI(uint256 tokenId, string calldata tokenShowName)
-        public
-        view
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId,
+        string calldata tokenShowName,
+        bytes calldata childrenMeta
+    ) public view returns (string memory) {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 length = _holder.colorList.length;
         bytes memory uriBuffer;
@@ -266,12 +266,14 @@ contract iColors is Ownable {
             );
         }
 
-        // remove the last ','
-        assembly {
-            mstore(uriBuffer, sub(mload(uriBuffer), 1))
+        if (length > 0 && childrenMeta.length == 0) {
+            // remove the last ','
+            assembly {
+                mstore(uriBuffer, sub(mload(uriBuffer), 1))
+            }
         }
 
-        uriBuffer = abi.encodePacked(uriBuffer, "]}");
+        uriBuffer = abi.encodePacked(uriBuffer, childrenMeta, "]}");
         return
             string(
                 abi.encodePacked(
@@ -384,6 +386,10 @@ contract iColors is Ownable {
         return publishers[_who];
     }
 
+    function isHolder(address _who) external view returns (bool) {
+        return holders[_who].exists;
+    }
+
     function holder(address _who) external view returns (Holder memory) {
         return holders[_who];
     }
@@ -392,12 +398,25 @@ contract iColors is Ownable {
         return globalTokens[tokenId];
     }
 
-    function holder(uint24[] calldata colorsFilter)
+    function holder(uint24 colorsFilter)
         external
         view
-    // returns (address[] calldata _holders)
+        returns (address[] memory _holders)
     {
+        uint256 size = globalTokens.length;
+        _holders = new address[](size);
+        uint256 _pointer = 0;
 
+        for (uint256 i = 0; i < size; i++) {
+            Holder memory _holder = holders[globalTokens[i]];
+
+            for (uint256 j = 0; j < _holder.colorList.length; j++) {
+                if (colorsFilter == _holder.colorList[j]) {
+                    _holders[_pointer++] = globalTokens[i];
+                    break;
+                }
+            }
+        }
     }
 
     function color(uint24 _value) external view returns (Color memory) {

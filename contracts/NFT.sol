@@ -14,11 +14,11 @@ pragma solidity ^0.8.4;
    \/__/        \:\__\        \::/  /       \:\__\    \::/  /       |:|  |        \::/  /   
                  \/__/         \/__/         \/__/     \/__/         \|__|         \/__/    
 */
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "./ERC721A.sol";
+
+import "./ERC998.sol";
 import "../interfaces/IColors.sol";
 
-contract iColorsNFT is Ownable, ERC721A {
+contract iColorsNFT is Ownable, ERC998 {
     mapping(address => string) showNames;
     IColors ic;
 
@@ -82,7 +82,12 @@ contract iColorsNFT is Ownable, ERC721A {
         returns (string memory)
     {
         require(_exists(tokenId), "Nonexistent token");
-        return ic.tokenURI(tokenId, showNames[ic.holder(tokenId)]);
+        return
+            ic.tokenURI(
+                tokenId,
+                showNames[ic.holder(tokenId)],
+                tokenChildrenURI(tokenId)
+            );
     }
 
     function setShowName(string calldata _name) external {

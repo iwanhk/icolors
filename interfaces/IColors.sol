@@ -32,10 +32,11 @@ interface IColors {
         uint256 _tokenId
     ) external returns (bool doBurn);
 
-    function tokenURI(uint256 tokenId, string calldata name)
-        external
-        view
-        returns (string memory);
+    function tokenURI(
+        uint256 tokenId,
+        string calldata tokenShowName,
+        bytes calldata childrenMeta
+    ) external view returns (string memory);
 
     function withdraw(address payable _who) external;
 

@@ -18,6 +18,23 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Base64.sol";
 import "./ERC721A.sol";
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
+contract T20 is ERC20 {
+    constructor() ERC20("T20", "T20") {
+        _mint(msg.sender, 100 * 10**18);
+    }
+}
+
+contract T721 is ERC721 {
+    constructor() ERC721("TOY SWARD", "T721") {
+        _safeMint(msg.sender, 0);
+        _safeMint(msg.sender, 1);
+        _safeMint(msg.sender, 2);
+    }
+}
+
 contract testHex {
     using Strings for uint256;
 
