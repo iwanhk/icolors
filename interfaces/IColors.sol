@@ -15,9 +15,38 @@ pragma solidity ^0.8.4;
                  \/__/         \/__/         \/__/     \/__/         \|__|         \/__/    
 */
 interface IColors {
+    struct Color {
+        string attr;
+        uint24 amount;
+        address publisher;
+    }
+    struct Publisher {
+        uint24[] colorList;
+        string name;
+        string description;
+        bool exists;
+    }
+    struct Holder {
+        uint24[] colorList;
+        uint24[] amounts;
+        uint256 globalId;
+        bool exists;
+    }
+
+    function publisher(address _who) external view returns (Publisher memory);
+
+    function color(uint24 _value) external view returns (Color memory);
+
+    function isHolder(address _who) external view returns (bool);
+
+    function holder(address _who) external view returns (Holder memory);
+
     function holder(uint256 tokenId) external view returns (address);
 
-    function isHolder(address who) external view returns (bool);
+    function holder(uint24 colorsFilter)
+        external
+        view
+        returns (address[] memory _holders);
 
     function mint(
         address _from,
@@ -37,6 +66,10 @@ interface IColors {
         string calldata tokenShowName,
         bytes calldata childrenMeta
     ) external view returns (string memory);
+
+    function svgImage(uint256 tokenId) external view returns (bytes memory);
+
+    function token(uint256 tokenId) external view returns (string memory info);
 
     function withdraw(address payable _who) external;
 
