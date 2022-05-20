@@ -47,6 +47,11 @@ contract iColorsNFT is Ownable, ERC998 {
         payable(msg.sender).transfer(msg.value - weight * Rate);
     }
 
+    function checkDockAssets() external view returns (assetItem[] memory) {
+        require(ic.isHolder(msg.sender), "Not owner");
+        return assets(ic.holder(msg.sender).globalId);
+    }
+
     function _beforeTokenTransfers(
         address _from,
         address _to,
