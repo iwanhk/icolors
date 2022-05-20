@@ -3,6 +3,7 @@ from scripts.tools import *
 import os
 import random
 from selenium import webdriver
+import web3
 
 D18 = 10**18
 ZERO = '0x0000000000000000000000000000000000000000'
@@ -98,6 +99,21 @@ def tx3(tx):
 
 def color():
     return random.randint(0, 255)+random.randint(0, 255) << 8+random.randint(0, 255) << 16
+
+
+def toText(content):
+    return web3.Web3.toText(content)
+
+
+def inaccuracy(multiple: int, data: list):
+    total = sum(data)
+    width = 500*multiple//total
+
+    sumup = 0
+    for i in data:
+        sumup += (i*width)//multiple
+
+    return 500 - sumup
 
 
 def loadData():
