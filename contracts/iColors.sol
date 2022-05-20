@@ -316,7 +316,7 @@ contract iColors is Ownable {
         return abi.encodePacked(buffer, "</svg>");
     }
 
-    function token(uint256 tokenId) public view returns (string memory info) {
+    function token(uint256 tokenId) external view returns (string memory info) {
         address owner = globalTokens[tokenId];
         require(holders[owner].exists, "No holder found");
 
