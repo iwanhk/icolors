@@ -48,8 +48,21 @@ contract iColorsNFT is Ownable, ERC998 {
     }
 
     function checkDockAssets() external view returns (assetItem[] memory) {
-        require(ic.isHolder(msg.sender), "Not owner");
+        if (!ic.isHolder(msg.sender)) {
+            return new assetItem[](0);
+        }
         return assets(ic.holder(msg.sender).globalId);
+    }
+
+    function checkDockAssets(uint256 tokenId)
+        external
+        view
+        returns (assetItem[] memory)
+    {
+        if (!_exists(tokenId)) {
+            return new assetItem[](0);
+        }
+        return assets(tokenId);
     }
 
     function _beforeTokenTransfers(
@@ -64,7 +77,10 @@ contract iColorsNFT is Ownable, ERC998 {
         }
 
         require(_amount == 1, "only 1 NFT to transfer");
-        if (ic._beforeTokenTransfers(_from, _to, _tokenId)) {
+        uint256 _newId = ic._beforeTokenTransfers(_from, _to, _tokenId);
+        if (_newId != _tokenId) {
+            // the token had been merged
+            transferAsset(_tokenId, _newId);
             _burn(_tokenId);
         }
     }
@@ -90,7 +106,7 @@ contract iColorsNFT is Ownable, ERC998 {
         return
             ic.tokenURI(
                 tokenId,
-                showNames[ic.holder(tokenId)],
+                bytes(showNames[ic.holder(tokenId)]),
                 tokenChildrenURI(tokenId)
             );
     }

@@ -44,40 +44,48 @@ def main():
                             random.randint(1, 15), addr2(creator, 5000)))
 
             t721 = T721.deploy(addr(admin))
-            t20 = T20.deploy(addr(admin))
 
-            t20.approve(ic, 100, addr(admin))
             t721.approve(ic, 0, addr(admin))
             t721.approve(ic, 1, addr(admin))
             t721.approve(ic, 2, addr(admin))
 
-            ic.dockERC20(0, t20, 100, addr(admin))
-            ic.dockERC721(0, t721, 0, addr(admin))
-            ic.dockERC721(0, t721, 1, addr(admin))
-            ic.dockERC721(0, t721, 2, addr(admin))
+            ic.dockAsset(0, t721, 0, addr(admin))
+            ic.dockAsset(0, t721, 1, addr(admin))
+            ic.dockAsset(0, t721, 2, addr(admin))
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
             colorData, hobbyData, publisherData = loadData()
 
             # Mint for iwan
-            round = random.randint(1, 25)
+            round = random.randint(1, 5)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
-                ic.mint(iwan, int(color.replace('#', '0x'), 0),
-                        random.randint(1, 3), addr2(creator, 5000))
+                tx3(ic.mint(iwan, int(color.replace('#', '0x'), 0),
+                            random.randint(1, 3), addr2(creator, 5000)))
 
-            round = random.randint(1, 25)
+            round = random.randint(1, 5)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
-                ic.mint(consumer, int(color.replace('#', '0x'), 0),
-                        random.randint(1, 3), addr2(creator, 5000))
+                tx3(ic.mint(consumer, int(color.replace('#', '0x'), 0),
+                            random.randint(1, 3), addr2(creator, 5000)))
 
-            round = random.randint(1, 25)
+            round = random.randint(1, 5)
             for r in range(round):
                 color = random.choice(list(colorData.keys()))
-                ic.mint(admin, int(color.replace('#', '0x'), 0),
-                        random.randint(1, 3), addr2(creator, 5000))
+                tx3(ic.mint(admin, int(color.replace('#', '0x'), 0),
+                            random.randint(1, 3), addr2(creator, 5000)))
+
+            t721 = T721.deploy(addr(admin))
+
+            t721.approve(ic, 0, addr(admin))
+            t721.approve(ic, 1, addr(admin))
+            t721.approve(ic, 2, addr(admin))
+
+            ic.dockAsset(0, t721, 0, addr(admin))
+            ic.dockAsset(0, t721, 1, addr(admin))
+            ic.dockAsset(0, t721, 2, addr(admin))
+
     except Exception:
         console.print_exception()
         # Test net contract address

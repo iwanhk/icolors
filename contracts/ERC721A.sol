@@ -3,12 +3,12 @@
 
 pragma solidity ^0.8.4;
 
-import '../interfaces/IERC721A.sol';
-import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
-import '@openzeppelin/contracts/utils/Address.sol';
-import '@openzeppelin/contracts/utils/Context.sol';
-import '@openzeppelin/contracts/utils/Strings.sol';
-import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
+import "../interfaces/IERC721A.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
@@ -87,7 +87,13 @@ contract ERC721A is Context, ERC165, IERC721A {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC165, IERC165)
+        returns (bool)
+    {
         return
             interfaceId == type(IERC721).interfaceId ||
             interfaceId == type(IERC721Metadata).interfaceId ||
@@ -135,7 +141,11 @@ contract ERC721A is Context, ERC165, IERC721A {
      * Gas spent here starts off proportional to the maximum mint batch size.
      * It gradually moves to O(1) as tokens get transferred around in the collection over time.
      */
-    function _ownershipOf(uint256 tokenId) internal view returns (TokenOwnership memory) {
+    function _ownershipOf(uint256 tokenId)
+        internal
+        view
+        returns (TokenOwnership memory)
+    {
         uint256 curr = tokenId;
 
         unchecked {
@@ -186,11 +196,20 @@ contract ERC721A is Context, ERC165, IERC721A {
     /**
      * @dev See {IERC721Metadata-tokenURI}.
      */
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
         if (!_exists(tokenId)) revert URIQueryForNonexistentToken();
 
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length != 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : '';
+        return
+            bytes(baseURI).length != 0
+                ? string(abi.encodePacked(baseURI, tokenId.toString()))
+                : "";
     }
 
     /**
@@ -199,7 +218,7 @@ contract ERC721A is Context, ERC165, IERC721A {
      * by default, can be overriden in child contracts.
      */
     function _baseURI() internal view virtual returns (string memory) {
-        return '';
+        return "";
     }
 
     /**
@@ -219,7 +238,12 @@ contract ERC721A is Context, ERC165, IERC721A {
     /**
      * @dev See {IERC721-getApproved}.
      */
-    function getApproved(uint256 tokenId) public view override returns (address) {
+    function getApproved(uint256 tokenId)
+        public
+        view
+        override
+        returns (address)
+    {
         if (!_exists(tokenId)) revert ApprovalQueryForNonexistentToken();
 
         return _tokenApprovals[tokenId];
@@ -228,7 +252,11 @@ contract ERC721A is Context, ERC165, IERC721A {
     /**
      * @dev See {IERC721-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
+    function setApprovalForAll(address operator, bool approved)
+        public
+        virtual
+        override
+    {
         if (operator == _msgSender()) revert ApproveToCaller();
 
         _operatorApprovals[_msgSender()][operator] = approved;
@@ -238,7 +266,13 @@ contract ERC721A is Context, ERC165, IERC721A {
     /**
      * @dev See {IERC721-isApprovedForAll}.
      */
-    function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
+    function isApprovedForAll(address owner, address operator)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
         return _operatorApprovals[owner][operator];
     }
 
@@ -261,7 +295,7 @@ contract ERC721A is Context, ERC165, IERC721A {
         address to,
         uint256 tokenId
     ) public virtual override {
-        safeTransferFrom(from, to, tokenId, '');
+        safeTransferFrom(from, to, tokenId, "");
     }
 
     /**
@@ -274,7 +308,10 @@ contract ERC721A is Context, ERC165, IERC721A {
         bytes memory _data
     ) public virtual override {
         _transfer(from, to, tokenId);
-        if (to.isContract() && !_checkContractOnERC721Received(from, to, tokenId, _data)) {
+        if (
+            to.isContract() &&
+            !_checkContractOnERC721Received(from, to, tokenId, _data)
+        ) {
             revert TransferToNonERC721ReceiverImplementer();
         }
     }
@@ -287,14 +324,17 @@ contract ERC721A is Context, ERC165, IERC721A {
      * Tokens start existing when they are minted (`_mint`),
      */
     function _exists(uint256 tokenId) internal view returns (bool) {
-        return _startTokenId() <= tokenId && tokenId < _currentIndex && !_ownerships[tokenId].burned;
+        return
+            _startTokenId() <= tokenId &&
+            tokenId < _currentIndex &&
+            !_ownerships[tokenId].burned;
     }
 
     /**
      * @dev Equivalent to `_safeMint(to, quantity, '')`.
      */
     function _safeMint(address to, uint256 quantity) internal {
-        _safeMint(to, quantity, '');
+        _safeMint(to, quantity, "");
     }
 
     /**
@@ -335,7 +375,14 @@ contract ERC721A is Context, ERC165, IERC721A {
             if (to.isContract()) {
                 do {
                     emit Transfer(address(0), to, updatedIndex);
-                    if (!_checkContractOnERC721Received(address(0), to, updatedIndex++, _data)) {
+                    if (
+                        !_checkContractOnERC721Received(
+                            address(0),
+                            to,
+                            updatedIndex++,
+                            _data
+                        )
+                    ) {
                         revert TransferToNonERC721ReceiverImplementer();
                     }
                 } while (updatedIndex != end);
@@ -551,7 +598,14 @@ contract ERC721A is Context, ERC165, IERC721A {
         uint256 tokenId,
         bytes memory _data
     ) private returns (bool) {
-        try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
+        try
+            IERC721Receiver(to).onERC721Received(
+                _msgSender(),
+                from,
+                tokenId,
+                _data
+            )
+        returns (bytes4 retval) {
             return retval == IERC721Receiver(to).onERC721Received.selector;
         } catch (bytes memory reason) {
             if (reason.length == 0) {

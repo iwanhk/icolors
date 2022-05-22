@@ -46,7 +46,7 @@ interface IColors {
     function holder(uint24 colorsFilter)
         external
         view
-        returns (address[] memory _holders);
+        returns (uint256[] memory ids);
 
     function mint(
         address _from,
@@ -59,17 +59,13 @@ interface IColors {
         address _from,
         address _to,
         uint256 _tokenId
-    ) external returns (bool doBurn);
+    ) external returns (uint256 newId);
 
     function tokenURI(
         uint256 tokenId,
-        string calldata tokenShowName,
-        bytes calldata childrenMeta
+        bytes memory tokenShowName,
+        bytes memory childrenMeta
     ) external view returns (string memory);
-
-    function svgImage(uint256 tokenId) external view returns (bytes memory);
-
-    function token(uint256 tokenId) external view returns (string memory info);
 
     function withdraw(address payable _who) external;
 

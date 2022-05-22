@@ -15,12 +15,11 @@ pragma solidity ^0.8.4;
                  \/__/         \/__/         \/__/     \/__/         \|__|         \/__/    
 */
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Base64.sol";
-import "./Strings.sol";
+
+import "./Metadata.sol";
 
 contract iColors is Ownable {
     using Strings for uint256;
-    using Strings for uint24;
 
     event Published(address from, uint256 count, uint256 fee);
     event Minted(
@@ -183,7 +182,7 @@ contract iColors is Ownable {
         address _from,
         address _to,
         uint256 _tokenId
-    ) external onlyOwner returns (bool) {
+    ) external onlyOwner returns (uint256 newId) {
         Holder memory _From = holders[_from];
 
         if (!holders[_to].exists) {
@@ -192,15 +191,15 @@ contract iColors is Ownable {
             holders[_to] = _From;
             globalTokens[_tokenId] = _to;
             delete holders[_from];
-            return false;
+            return _tokenId;
         } else {
             // add the color to previour list
-            uint256 j;
-            uint256 size = holders[_to].colorList.length;
-            for (j = 0; j < _From.colorList.length; j++) {
+            Holder memory _To = holders[_to];
+            for (uint256 j = 0; j < _From.colorList.length; j++) {
                 uint256 i;
+                uint256 size = _To.colorList.length;
                 for (i = 0; i < size; i++) {
-                    if (holders[_to].colorList[i] == _From.colorList[j]) {
+                    if (_To.colorList[i] == _From.colorList[j]) {
                         holders[_to].amounts[i] += _From.amounts[j];
                         break;
                     }
@@ -213,142 +212,82 @@ contract iColors is Ownable {
             }
             delete globalTokens[_tokenId];
             delete holders[_from];
-            return true;
+            return _To.globalId;
         }
     }
 
     function tokenURI(
         uint256 tokenId,
-        string calldata tokenShowName,
-        bytes calldata childrenMeta
-    ) public view returns (string memory) {
+        bytes memory tokenShowName,
+        bytes memory childrenMeta
+    ) external view returns (string memory) {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 length = _holder.colorList.length;
-        bytes memory uriBuffer;
-        bytes memory _name = bytes(tokenShowName);
+        bytes memory _traits = "";
 
-        if (_name.length == 0) {
-            // No name set
-            _name = abi.encodePacked("iColors#", tokenId.toString(), "*");
-        }
-
-        if (_name[_name.length - 1] == "*") {
-            // remove the last '*'
-            assembly {
-                mstore(_name, sub(mload(_name), 1))
-            }
-            for (uint256 i = 0; i < length; i++) {
-                // ⭐️ = "\xe2\xad\x90\xef\xb8\x8f"
-                _name = abi.encodePacked(_name, "\xe2\xad\x90\xef\xb8\x8f");
-            }
-        }
-
-        uriBuffer = abi.encodePacked(
-            '{"name": "',
-            _name,
-            '", "description": "iColors: I am just yet another color"',
-            ', "image_data": "',
-            "data:image/svg+xml;base64,",
-            Base64.encode(svgImage(tokenId)),
-            '", "designer": "LUCA355", "attributes": ['
-        );
         for (uint256 i = 0; i < length; ++i) {
             Color memory _color = colors[_holder.colorList[i]];
-            uriBuffer = abi.encodePacked(
-                uriBuffer,
+            _traits = abi.encodePacked(
+                _traits,
                 '{"trait_type": "',
                 publishers[_color.publisher].name,
-                ".",
-                _color.attr,
                 '", "value": "',
-                uint256(_holder.amounts[i]).toString(),
+                _color.attr,
+                bytes(uint256(_holder.amounts[i]).toString()),
                 '"},'
             );
         }
 
-        if (length > 0 && childrenMeta.length == 0) {
+        if (_traits.length > 0 && childrenMeta.length == 0) {
             // remove the last ','
             assembly {
-                mstore(uriBuffer, sub(mload(uriBuffer), 1))
+                mstore(_traits, sub(mload(_traits), 1))
             }
         }
 
-        uriBuffer = abi.encodePacked(uriBuffer, childrenMeta, "]}");
         return
-            string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(abi.encodePacked(uriBuffer))
-                )
+            Metadata.uri(
+                tokenId,
+                tokenShowName,
+                length,
+                Metadata.svgImage(_holder.colorList, _holder.amounts),
+                abi.encodePacked(_traits, childrenMeta)
             );
     }
 
-    function svgImage(uint256 tokenId) public view returns (bytes memory) {
-        Holder memory _holder = holders[globalTokens[tokenId]];
-        uint256 count = _holder.colorList.length;
-        uint256 weight = 0;
-        bytes
-            memory buffer = '<?xml version="1.0"?><svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"> ';
+    // function token(uint256 tokenId) external view returns (string memory info) {
+    //     address owner = globalTokens[tokenId];
+    //     require(holders[owner].exists, "tokenId not exist");
 
-        for (uint256 i = 0; i < count; ++i) {
-            weight += _holder.amounts[i];
-        }
-        uint256 _width = (500 * 100) / weight == 0 ? 1 : (500 * 100) / weight;
-        uint256 _x = 0;
+    //     info = string(
+    //         abi.encodePacked(
+    //             "Token[",
+    //             tokenId.toString(),
+    //             '] \nOwner: "',
+    //             Strings.toHexString(uint256(uint160(owner)), 20),
+    //             '" \n'
+    //         )
+    //     );
 
-        for (uint256 i = 0; i < count; ++i) {
-            uint24 _colorValue = _holder.colorList[i];
-            uint24 _amount = _holder.amounts[i];
+    //     uint256 size = holders[owner].colorList.length;
+    //     for (uint256 i = 0; i < size; i++) {
+    //         Color memory _color = colors[holders[owner].colorList[i]];
 
-            buffer = abi.encodePacked(
-                buffer,
-                ' <rect x="',
-                _x.toString(),
-                '" y="0" width="',
-                ((_width * _amount) / 100).toString(),
-                '" height="500" style="fill:#',
-                _colorValue.toHLHexString(),
-                '"/> '
-            );
-            _x += 1 + (_width * _amount) / 100;
-        }
-
-        return abi.encodePacked(buffer, "</svg>");
-    }
-
-    function token(uint256 tokenId) external view returns (string memory info) {
-        address owner = globalTokens[tokenId];
-        require(holders[owner].exists, "No holder found");
-
-        info = string(
-            abi.encodePacked(
-                "Token[",
-                tokenId.toString(),
-                '] \nOwner: "',
-                Strings.toHexString(uint256(uint160(owner)), 20),
-                '" \n'
-            )
-        );
-
-        uint256 size = holders[owner].colorList.length;
-        for (uint256 i = 0; i < size; i++) {
-            Color memory _color = colors[holders[owner].colorList[i]];
-
-            info = string(
-                abi.encodePacked(
-                    info,
-                    publishers[_color.publisher].name,
-                    ".",
-                    _color.attr,
-                    " (color #",
-                    holders[owner].colorList[i].toHLHexString(),
-                    "): ",
-                    uint256(holders[owner].amounts[i]).toString(),
-                    "\n"
-                )
-            );
-        }
-    }
+    //         info = string(
+    //             abi.encodePacked(
+    //                 info,
+    //                 publishers[_color.publisher].name,
+    //                 ".",
+    //                 _color.attr,
+    //                 " (color #",
+    //                 Metadata.toHLHexString(holders[owner].colorList[i]),
+    //                 "): ",
+    //                 uint256(holders[owner].amounts[i]).toString(),
+    //                 "\n"
+    //             )
+    //         );
+    //     }
+    // }
 
     // function publisher(address _p) external view returns (string memory info) {
     //     if (!publishers[_p].exists) {
@@ -401,10 +340,10 @@ contract iColors is Ownable {
     function holder(uint24 colorsFilter)
         external
         view
-        returns (address[] memory _holders)
+        returns (uint256[] memory ids)
     {
         uint256 size = globalTokens.length;
-        address[] memory _buffer = new address[](size);
+        uint256[] memory _buffer = new uint256[](size);
         uint256 _pointer = 0;
 
         for (uint256 i = 0; i < size; i++) {
@@ -412,15 +351,15 @@ contract iColors is Ownable {
 
             for (uint256 j = 0; j < _holder.colorList.length; j++) {
                 if (colorsFilter == _holder.colorList[j]) {
-                    _buffer[_pointer++] = globalTokens[i];
+                    _buffer[_pointer++] = i;
                     break;
                 }
             }
         }
 
-        _holders = new address[](_pointer);
+        ids = new uint256[](_pointer);
         while (_pointer > 0) {
-            _holders[_pointer - 1] = _buffer[_pointer - 1];
+            ids[_pointer - 1] = _buffer[_pointer - 1];
             _pointer--;
         }
     }
