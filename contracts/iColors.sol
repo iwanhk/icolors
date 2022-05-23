@@ -50,6 +50,7 @@ contract iColors is Ownable {
         address publisher;
     }
 
+    address dp;
     mapping(address => Publisher) publishers;
     mapping(address => Holder) holders;
     mapping(uint24 => Color) colors;
@@ -58,7 +59,9 @@ contract iColors is Ownable {
     uint256 public Rate = 1;
     uint256 public Floor = 0.0001 ether;
 
-    constructor() {}
+    constructor(address _dataTemplate) {
+        dp = _dataTemplate;
+    }
 
     function publish(
         string calldata _name,
@@ -194,20 +197,20 @@ contract iColors is Ownable {
             return _tokenId;
         } else {
             // add the color to previour list
-            Holder memory _To = holders[_to];
+            Holder storage _To = holders[_to];
             for (uint256 j = 0; j < _From.colorList.length; j++) {
                 uint256 i;
                 uint256 size = _To.colorList.length;
                 for (i = 0; i < size; i++) {
                     if (_To.colorList[i] == _From.colorList[j]) {
-                        holders[_to].amounts[i] += _From.amounts[j];
+                        _To.amounts[i] += _From.amounts[j];
                         break;
                     }
                 }
                 if (i == size) {
                     // merge colors
-                    holders[_to].colorList.push(_From.colorList[j]);
-                    holders[_to].amounts.push(_From.amounts[j]);
+                    _To.colorList.push(_From.colorList[j]);
+                    _To.amounts.push(_From.amounts[j]);
                 }
             }
             delete globalTokens[_tokenId];
@@ -234,7 +237,7 @@ contract iColors is Ownable {
                 ".",
                 _color.attr,
                 '", "value": "',
-                bytes(uint256(_holder.amounts[i]).toString()),
+                uint256(_holder.amounts[i]).toString(),
                 '"},'
             );
         }
@@ -246,12 +249,15 @@ contract iColors is Ownable {
             }
         }
 
+        bytes memory svg = childrenMeta.length > 0
+            ? Metadata.svgImage(_holder.colorList, _holder.amounts, dp)
+            : Metadata.svgImage(_holder.colorList, _holder.amounts, address(0));
         return
             Metadata.uri(
                 tokenId,
                 tokenShowName,
                 length,
-                Metadata.svgImage(_holder.colorList, _holder.amounts),
+                svg,
                 abi.encodePacked(_traits, childrenMeta)
             );
     }

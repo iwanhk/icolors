@@ -1,7 +1,8 @@
-from brownie import testContract, iColorsNFT, iColors, T20, T721, accounts, network, config
+from brownie import testContract, iColorsNFT, iColors, T20, T721, DataTemplate, accounts, network, config
 from scripts.tools import *
 import os
 import random
+import zlib
 from selenium import webdriver
 import web3
 
@@ -114,6 +115,27 @@ def inaccuracy(multiple: int, data: list):
         sumup += (i*width)//multiple
 
     return 500 - sumup
+
+
+def deflate(data, compresslevel=9):
+    compress = zlib.compressobj(
+        compresslevel,        # level: 0-9
+        zlib.DEFLATED,        # method: must be DEFLATED
+        -zlib.MAX_WBITS,      # window size in bits:
+        #   -15..-8: negate, suppress header
+        #   8..15: normal
+        #   16..30: subtract 16, gzip header
+        zlib.DEF_MEM_LEVEL,   # mem level: 1..8/9
+        0                     # strategy:
+        #   0 = Z_DEFAULT_STRATEGY
+        #   1 = Z_FILTERED
+        #   2 = Z_HUFFMAN_ONLY
+        #   3 = Z_RLE
+        #   4 = Z_FIXED
+    )
+    deflated = compress.compress(data)
+    deflated += compress.flush()
+    return deflated
 
 
 def loadData():

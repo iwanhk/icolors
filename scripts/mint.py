@@ -9,7 +9,8 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-            i = iColors.deploy(addr(admin))
+            data = DataTemplate.deploy(addr(admin))
+            i = iColors.deploy(data, addr(admin))
             ic = iColorsNFT.deploy(i, addr(admin))
             i.transferOwnership(ic, addr(admin))
 
@@ -52,6 +53,15 @@ def main():
             ic.dockAsset(0, t721, 0, addr(admin))
             ic.dockAsset(1, t721, 1, addr(admin))
             ic.dockAsset(2, t721, 2, addr(admin))
+
+            with open('animation.svg', 'r') as f:
+                buffer = f.read()
+                compress_data = deflate(str.encode(buffer))
+                print(
+                    f"svg file ({len(buffer)}) compressed to {len(compress_data)}")
+                data.upload(compress_data, len(buffer))
+
+            print(f"{len(data.get(0))} bytes uploaded to dataTemplate")
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]

@@ -4,6 +4,10 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Base64.sol";
 
+interface IDataTemplate {
+    function get(uint256 id) external view returns (string memory);
+}
+
 library Metadata {
     using Strings for uint256;
 
@@ -73,11 +77,11 @@ library Metadata {
             );
     }
 
-    function svgImage(uint24[] memory _colors, uint24[] memory _amounts)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function svgImage(
+        uint24[] memory _colors,
+        uint24[] memory _amounts,
+        address dp
+    ) internal view returns (bytes memory) {
         uint256 count = _colors.length;
         uint256 weight;
         bytes memory buffer = _SVG_HEAD;
@@ -90,7 +94,7 @@ library Metadata {
         uint256 _x;
 
         for (i = 0; i < count; ++i) {
-            uint256 _realWidth = (_width * _amounts[i] + 50) / 100;
+            uint256 _realWidth = (_width * _amounts[i] + 51) / 100;
             _realWidth = _realWidth == 0 ? 1 : _realWidth;
 
             buffer = abi.encodePacked(
@@ -106,6 +110,9 @@ library Metadata {
             _x += _realWidth;
         }
 
+        if (dp != address(0)) {
+            buffer = abi.encodePacked(buffer, IDataTemplate(dp).get(0));
+        }
         return abi.encodePacked(buffer, "</svg>");
     }
 }
