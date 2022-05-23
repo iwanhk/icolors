@@ -231,8 +231,9 @@ contract iColors is Ownable {
                 _traits,
                 '{"trait_type": "',
                 publishers[_color.publisher].name,
-                '", "value": "',
+                ".",
                 _color.attr,
+                '", "value": "',
                 bytes(uint256(_holder.amounts[i]).toString()),
                 '"},'
             );
@@ -255,39 +256,39 @@ contract iColors is Ownable {
             );
     }
 
-    // function token(uint256 tokenId) external view returns (string memory info) {
-    //     address owner = globalTokens[tokenId];
-    //     require(holders[owner].exists, "tokenId not exist");
+    function token(uint256 tokenId) external view returns (string memory info) {
+        address owner = globalTokens[tokenId];
+        require(holders[owner].exists, "tokenId not exist");
 
-    //     info = string(
-    //         abi.encodePacked(
-    //             "Token[",
-    //             tokenId.toString(),
-    //             '] \nOwner: "',
-    //             Strings.toHexString(uint256(uint160(owner)), 20),
-    //             '" \n'
-    //         )
-    //     );
+        info = string(
+            abi.encodePacked(
+                "Token[",
+                tokenId.toString(),
+                '] \nOwner: "',
+                Strings.toHexString(uint256(uint160(owner)), 20),
+                '" \n'
+            )
+        );
 
-    //     uint256 size = holders[owner].colorList.length;
-    //     for (uint256 i = 0; i < size; i++) {
-    //         Color memory _color = colors[holders[owner].colorList[i]];
+        uint256 size = holders[owner].colorList.length;
+        for (uint256 i = 0; i < size; i++) {
+            Color memory _color = colors[holders[owner].colorList[i]];
 
-    //         info = string(
-    //             abi.encodePacked(
-    //                 info,
-    //                 publishers[_color.publisher].name,
-    //                 ".",
-    //                 _color.attr,
-    //                 " (color #",
-    //                 Metadata.toHLHexString(holders[owner].colorList[i]),
-    //                 "): ",
-    //                 uint256(holders[owner].amounts[i]).toString(),
-    //                 "\n"
-    //             )
-    //         );
-    //     }
-    // }
+            info = string(
+                abi.encodePacked(
+                    info,
+                    publishers[_color.publisher].name,
+                    ".",
+                    _color.attr,
+                    " (color #",
+                    Metadata.toHLHexString(holders[owner].colorList[i]),
+                    "): ",
+                    uint256(holders[owner].amounts[i]).toString(),
+                    "\n"
+                )
+            );
+        }
+    }
 
     // function publisher(address _p) external view returns (string memory info) {
     //     if (!publishers[_p].exists) {
