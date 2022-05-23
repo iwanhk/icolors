@@ -219,7 +219,7 @@ contract iColors is Ownable {
     function tokenURI(
         uint256 tokenId,
         bytes memory tokenShowName,
-        bytes memory childrenMeta
+        bytes calldata childrenMeta
     ) external view returns (string memory) {
         Holder memory _holder = holders[globalTokens[tokenId]];
         uint256 length = _holder.colorList.length;

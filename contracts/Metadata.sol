@@ -12,6 +12,8 @@ library Metadata {
         '<?xml version="1.0"?><svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"> ';
     bytes private constant _DESCRIPTION =
         '"description": "iColors: I am just yet another color"';
+    bytes private constant _AUTHOR = '"designer": "LUCA355"';
+    bytes private constant _NFT_NAME = "iColors#";
 
     function toHLHexString(uint24 value) internal pure returns (string memory) {
         bytes memory buffer = new bytes(6);
@@ -34,7 +36,7 @@ library Metadata {
 
         if (_name.length == 0) {
             // No name set
-            _name = abi.encodePacked("iColors#", tokenId.toString(), "*");
+            _name = abi.encodePacked(_NFT_NAME, tokenId.toString(), "*");
         }
 
         if (_name[_name.length - 1] == "*") {
@@ -53,10 +55,11 @@ library Metadata {
             _name,
             '", ',
             _DESCRIPTION,
-            ', "image_data": "',
-            "data:image/svg+xml;base64,",
+            ', "image_data": "data:image/svg+xml;base64,',
             Base64.encode(_svg),
-            '", "designer": "LUCA355", "attributes": [',
+            '", ',
+            _AUTHOR,
+            ', "attributes": [',
             _traits,
             "]}"
         );
