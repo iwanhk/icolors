@@ -100,7 +100,6 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
                 content = abi.encodePacked(
                     content,
                     '{"trait_type": "ERC721 Assets.',
-                    length.toString(),
                     erc721.name(),
                     '", "value": "',
                     _ids.length.toString(),
