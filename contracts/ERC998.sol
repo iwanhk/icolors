@@ -18,6 +18,7 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
     event Received(address _from, uint256 tokenId);
 
     mapping(uint256 => mapping(address => uint256[])) children721;
+    mapping(address => uint256) dockAssets;
     address[] childrenContracts;
 
     function dockAsset(
@@ -27,14 +28,18 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
     ) external {
         require(_contract != address(0), "Invalid arg");
 
+        if (dockAssets[_contract] == 0) {
+            childrenContracts.push(_contract);
+        }
+
         IERC721 erc721 = IERC721(_contract);
         if (children721[tokenId][_contract].length == 0) {
             // new record
             children721[tokenId][_contract] = new uint256[](0);
-            childrenContracts.push(_contract);
         }
         // found a record
         children721[tokenId][_contract].push(_id);
+        dockAssets[_contract] += 1;
 
         return erc721.transferFrom(msg.sender, address(this), _id);
     }
@@ -46,6 +51,7 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
         address _to
     ) external {
         require(ownerOf(tokenId) == msg.sender, "Not Owner");
+        require(dockAssets[_contract] > 0, "No asset left");
         //require(children721[tokenId][_contract].length != 0, "No Children");
 
         IERC721 erc721 = IERC721(_contract);
@@ -66,8 +72,9 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
 
         if (found) {
             children721[tokenId][_contract].pop();
+            dockAssets[_contract] -= 1;
         } else {
-            revert("Id not found");
+            revert("Asset not found");
         }
     }
 
@@ -81,17 +88,22 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
 
         for (uint256 i = 0; i < length; ++i) {
             address _contract = childrenContracts[i];
+            if (dockAssets[_contract] == 0) {
+                continue;
+            }
+            uint256[] memory _ids = children721[tokenId][_contract];
 
-            if (children721[tokenId][_contract].length != 0) {
+            if (_ids.length != 0) {
                 // Fount ERC721 child
                 IERC721Metadata erc721 = IERC721Metadata(_contract);
 
                 content = abi.encodePacked(
                     content,
                     '{"trait_type": "ERC721 Assets.',
+                    length.toString(),
                     erc721.name(),
                     '", "value": "',
-                    children721[tokenId][_contract].length.toString(),
+                    _ids.length.toString(),
                     '"},'
                 );
             }
@@ -137,6 +149,9 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
 
         for (uint256 i = 0; i < size; i++) {
             address _contract = childrenContracts[i];
+            if (dockAssets[_contract] == 0) {
+                continue;
+            }
             uint256[] memory _ids = children721[tokenId][_contract];
 
             if (children721[tokenId][_contract].length != 0) {
@@ -151,6 +166,10 @@ abstract contract ERC998 is ERC721A, IERC721Receiver {
             assetList[_pointer - 1] = _buffer[_pointer - 1];
             _pointer--;
         }
+    }
+
+    function assets(address _contract) internal view returns (uint256) {
+        return dockAssets[_contract];
     }
 
     function onERC721Received(

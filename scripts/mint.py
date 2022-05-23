@@ -50,8 +50,8 @@ def main():
             t721.approve(ic, 2, addr(admin))
 
             ic.dockAsset(0, t721, 0, addr(admin))
-            ic.dockAsset(0, t721, 1, addr(admin))
-            ic.dockAsset(0, t721, 2, addr(admin))
+            ic.dockAsset(1, t721, 1, addr(admin))
+            ic.dockAsset(2, t721, 2, addr(admin))
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
@@ -83,8 +83,8 @@ def main():
             t721.approve(ic, 2, addr(admin))
 
             ic.dockAsset(0, t721, 0, addr(admin))
-            ic.dockAsset(0, t721, 1, addr(admin))
-            ic.dockAsset(0, t721, 2, addr(admin))
+            ic.dockAsset(1, t721, 1, addr(admin))
+            ic.dockAsset(2, t721, 2, addr(admin))
 
     except Exception:
         console.print_exception()
