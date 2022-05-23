@@ -79,27 +79,31 @@ library Metadata {
         returns (bytes memory)
     {
         uint256 count = _colors.length;
-        uint256 weight = 0;
+        uint256 weight;
         bytes memory buffer = _SVG_HEAD;
+        uint256 i;
 
-        for (uint256 i = 0; i < count; ++i) {
+        for (; i < count; ++i) {
             weight += _amounts[i];
         }
-        uint256 _width = (500 * 100) / weight == 0 ? 1 : (500 * 100) / weight;
-        uint256 _x = 0;
+        uint256 _width = (500 * 100) / weight;
+        uint256 _x;
 
-        for (uint256 i = 0; i < count; ++i) {
+        for (i = 0; i < count; ++i) {
+            uint256 _realWidth = (_width * _amounts[i] + 50) / 100;
+            _realWidth = _realWidth == 0 ? 1 : _realWidth;
+
             buffer = abi.encodePacked(
                 buffer,
                 ' <rect x="',
                 _x.toString(),
                 '" y="0" width="',
-                ((_width * _amounts[i]) / 100).toString(),
+                _realWidth.toString(),
                 '" height="500" style="fill:#',
                 toHLHexString(_colors[i]),
                 '"/> '
             );
-            _x += 1 + (_width * _amounts[i]) / 100;
+            _x += _realWidth;
         }
 
         return abi.encodePacked(buffer, "</svg>");
