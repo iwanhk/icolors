@@ -12,7 +12,8 @@ def main():
             ic = iColorsNFT.deploy(addr(admin))
 
         if active_network in TEST_NETWORKS:
-            i = iColors.deploy(addr(admin))
+            data = DataTemplate.deploy(addr(admin))
+            i = iColors.deploy(data, addr(admin))
             ic = iColorsNFT.deploy(i, addr(admin))
             i.transferOwnership(ic, addr(admin))
 
@@ -26,6 +27,17 @@ def main():
                       [30000] * amount,
                       hobbyData,
                       addr2(creator, 0.1*10**18))
+
+            T721.deploy(addr(admin))
+
+            with open('animation.svg', 'r') as f:
+                buffer = f.read()
+                compress_data = deflate(str.encode(buffer))
+                print(
+                    f"animation.svg ({len(buffer)}) compressed to {len(compress_data)}")
+                data.upload(compress_data, len(buffer))
+
+            print(f"{len(data.get(0))} bytes uploaded to dataTemplate")
 
     except Exception:
         console.print_exception()
