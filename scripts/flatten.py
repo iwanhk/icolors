@@ -13,6 +13,7 @@ def main():
 
         flat_contract('iColorsNFT', iColorsNFT.get_verification_info())
         flat_contract('iColors', iColors.get_verification_info())
+        flat_contract('ZlibDatabase', ZlibDatabase.get_verification_info())
 
     except Exception:
         console.print_exception()

@@ -9,7 +9,7 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-            data = DataTemplate.deploy(addr(admin))
+            data = ZlibDatabase.deploy(addr(admin))
             i = iColors.deploy(data, addr(admin))
             ic = iColorsNFT.deploy(i, addr(admin))
             i.transferOwnership(ic, addr(admin))
@@ -62,14 +62,14 @@ def main():
                 buffer = f.read()
                 compress_data = deflate(str.encode(buffer))
                 print(
-                    f"svg file ({len(buffer)}) compressed to {len(compress_data)}")
-                data.upload(compress_data, len(buffer))
+                    f"animation.svg ({len(buffer)}) compressed to {len(compress_data)}")
+                data.store('astronaut-1', compress_data, len(buffer))
 
-            print(f"{len(data.get(0))} bytes uploaded to dataTemplate")
+            print(f"{len(data.get('astronaut-1'))} bytes uploaded to ZlibDatabase")
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
-            data = DataTemplate[-1]
+            data = ZlibDatabase[-1]
             t721 = T721[-1]
 
             colorData, hobbyData, publisherData = loadData()

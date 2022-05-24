@@ -9,7 +9,10 @@ def main():
 
     try:
         if active_network in LOCAL_NETWORKS:
-            ic = iColorsNFT.deploy(addr(admin))
+            data = ZlibDatabase.deploy(addr(admin))
+            i = iColors.deploy(data, addr(admin))
+            ic = iColorsNFT.deploy(i, addr(admin))
+            i.transferOwnership(ic, addr(admin))
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]

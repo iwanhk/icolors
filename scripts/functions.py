@@ -1,4 +1,4 @@
-from brownie import testContract, iColorsNFT, iColors, T20, T721, DataTemplate, accounts, network, config
+from brownie import testContract, iColorsNFT, iColors, T721, ZlibDatabase, accounts, network, config
 from scripts.tools import *
 import os
 import random

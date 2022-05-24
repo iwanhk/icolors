@@ -12,7 +12,7 @@ def main():
             ic = iColorsNFT.deploy(addr(admin))
 
         if active_network in TEST_NETWORKS:
-            data = DataTemplate.deploy(addr(admin))
+            data = ZlibDatabase.deploy(addr(admin))
             i = iColors.deploy(data, addr(admin))
             ic = iColorsNFT.deploy(i, addr(admin))
             i.transferOwnership(ic, addr(admin))
@@ -35,9 +35,9 @@ def main():
                 compress_data = deflate(str.encode(buffer))
                 print(
                     f"animation.svg ({len(buffer)}) compressed to {len(compress_data)}")
-                data.upload(compress_data, len(buffer))
+                data.store('astronaut-1', compress_data, len(buffer))
 
-            print(f"{len(data.get(0))} bytes uploaded to dataTemplate")
+            print(f"{len(data.get('astronaut-1'))} bytes uploaded to ZlibDatabase")
 
     except Exception:
         console.print_exception()
