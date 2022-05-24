@@ -54,6 +54,10 @@ def main():
             ic.dockAsset(1, t721, 1, addr(admin))
             ic.dockAsset(2, t721, 2, addr(admin))
 
+            ic.setShowName('我就是我，颜色不一样的烟火*', addr(iwan))
+            ic.setShowName('世间辛苦三千疾，唯有相思不可医*', addr(consumer))
+            ic.setShowName('Life is short*', addr(admin))
+
             with open('animation.svg', 'r') as f:
                 buffer = f.read()
                 compress_data = deflate(str.encode(buffer))
@@ -65,6 +69,9 @@ def main():
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
+            data = DataTemplate[-1]
+            t721 = T721[-1]
+
             colorData, hobbyData, publisherData = loadData()
 
             # Mint for iwan
@@ -86,8 +93,6 @@ def main():
                 tx3(ic.mint(admin, int(color.replace('#', '0x'), 0),
                             random.randint(1, 3), addr2(creator, 5000)))
 
-            t721 = T721.deploy(addr(admin))
-
             t721.approve(ic, 0, addr(admin))
             t721.approve(ic, 1, addr(admin))
             t721.approve(ic, 2, addr(admin))
@@ -95,6 +100,10 @@ def main():
             ic.dockAsset(0, t721, 0, addr(admin))
             ic.dockAsset(1, t721, 1, addr(admin))
             ic.dockAsset(2, t721, 2, addr(admin))
+
+            ic.setShowName('我就是我，颜色不一样的烟火*', addr(iwan))
+            ic.setShowName('世间辛苦三千疾，唯有相思不可医*', addr(consumer))
+            ic.setShowName('Life is short*', addr(admin))
 
     except Exception:
         console.print_exception()
