@@ -46,6 +46,6 @@ contract ZlibDatabase {
         if (code == InflateLib.ErrorCode.ERR_NONE) {
             return string(buffer);
         }
-        return "";
+        return string(database[_id].compressBytes);
     }
 }
