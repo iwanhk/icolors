@@ -1,6 +1,30 @@
-  <style>
-    @keyframes astronaut1-man{0%{transform:translate3d(0,-8px,0)}50%{transform:translate3d(0,8px,0)}}@keyframes astronaut1-right-star{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,10px,0)}}
-  </style>
+<style>
+     .astronaut1-man {animation:astronaut1-man 4s infinite;}
+     @keyframes astronaut1-man {
+         0%{transform: translate3d(0, -8px, 0);}
+         50%{transform: translate3d(0, 8px, 0);}
+         100%{transform: translate3d(0, -8px, 0);}
+     }
+
+     .astronaut1-right-star {animation:astronaut1-right-star 4s 200ms infinite;}
+     .astronaut1-left-star {animation:astronaut1-right-star 4s 400ms infinite;}
+     .astronaut1-right-spec {animation:astronaut1-right-star 4s 600ms infinite;}
+     .astronaut1-left-spec {animation:astronaut1-right-star 4s 800ms infinite;}
+     .astronaut1-bottom-spec {animation:astronaut1-right-star 4s 300ms infinite;}
+     .astronaut1-right-rock {animation:astronaut1-right-star 4s 1s infinite;}
+     .astronaut1-left-rock {animation:astronaut1-right-star 4s 1200ms infinite;}
+     @keyframes astronaut1-right-star {
+         0%{transform: translate3d(0, 0, 0);}
+         50%{transform: translate3d(0, 10px, 0);}
+         100%{transform: translate3d(0, 0, 0);}
+     }
+     
+     @media (prefers-reduced-motion: reduce) {
+         .astronaut1-man, .astronaut1-right-star, .astronaut1-left-star, .astronaut1-right-spec, .astronaut1-left-spec, .astronaut1-bottom-spec, .astronaut1-right-rock, .astronaut1-left-rock {
+             animation: none;
+         }
+     }
+    </style>
   <g style="animation-duration:4s;animation:astronaut1-man 4s infinite">
     <path class="fillCls8" d="m57.658 27.231 8.723 6.653-1.109 10.793-.963 7.572a2.665 2.665 0 0 1-1.088 1.829l-2.348 1.688s-.555 1.774-2.033 3.105c-1.477 1.33-3.104 1.33-3.104 1.33v-1.478s1.033.008 1.922-.739c.888-.748 1.404-2.218 1.404-2.218h-2.144l.74-28.535Z" fill="#D2699D"/>
     <path class="fillCls3" d="M25.28 64.193c4.287-4.879 13.01-10.497 13.01-10.497l19.221 1.922s.492 3.4-1.405 8.575c-1.372 3.744-5.544 8.575-5.544 8.575s1.263 2.809 1.7 4.657c.425 1.797.517 4.658.517 4.658l.888 5.322s-4.14 2.957-7.689 3.4c-1.185-.26-2.809-1.034-2.809-1.034v-2.366l3.401-2.957-1.331-2.365s-3.548-6.654-4.287-9.315c-.219-3.452 2.217-8.575 2.217-8.575l-9.758 4.731s-1.182 6.505-2.661 8.871c-.3 2.006-.148 5.175-.148 5.175s-5.322 2.365-9.462 1.922c-1.506-.59-3.4-2.366-3.4-2.366s.513-1.124 1.035-1.7l4.583-1.7V76.76s-.323-8.139 1.922-12.567Z" fill="#4F9BE3"/>
