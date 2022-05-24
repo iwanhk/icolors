@@ -4,8 +4,8 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Base64.sol";
 
-interface IDataTemplate {
-    function get(uint256 id) external view returns (string memory);
+interface IZlibDatabase {
+    function get(string calldata _id) external view returns (string memory);
 }
 
 library Metadata {
@@ -111,7 +111,10 @@ library Metadata {
         }
 
         if (dp != address(0)) {
-            buffer = abi.encodePacked(buffer, IDataTemplate(dp).get(0));
+            buffer = abi.encodePacked(
+                buffer,
+                IZlibDatabase(dp).get("astronaut-1")
+            );
         }
         return abi.encodePacked(buffer, "</svg>");
     }
