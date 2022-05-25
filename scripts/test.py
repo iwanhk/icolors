@@ -21,7 +21,7 @@ def main():
                 data.store("astronaut-1", compress_data,
                            len(buffer), addr(admin))
 
-            print(f"{len(data.get(0))} bytes uploaded to ZlibDatabase")
+            # print(f"{len(data.get("astronaut-1"))} bytes uploaded to ZlibDatabase")
 
     except Exception:
         console.print_exception()

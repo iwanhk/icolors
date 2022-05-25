@@ -16,6 +16,8 @@ def main():
 
         if active_network in TEST_NETWORKS:
             ic = iColorsNFT[-1]
+            i = iColors[-1]
+            data = ZlibDatabase[-1]
 
     except Exception:
         console.print_exception()

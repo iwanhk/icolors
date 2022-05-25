@@ -93,17 +93,13 @@ def main():
                 tx3(ic.mint(admin, int(color.replace('#', '0x'), 0),
                             random.randint(1, 3), addr2(creator, 5000)))
 
-            t721.approve(ic, 0, addr(admin))
-            t721.approve(ic, 1, addr(admin))
-            t721.approve(ic, 2, addr(admin))
+            # t721.approve(ic, 3, addr(admin))
+            # t721.approve(ic, 4, addr(admin))
+            # t721.approve(ic, 5, addr(admin))
 
-            ic.dockAsset(0, t721, 0, addr(admin))
-            ic.dockAsset(1, t721, 1, addr(admin))
-            ic.dockAsset(2, t721, 2, addr(admin))
-
-            ic.setShowName('我就是我，颜色不一样的烟火*', addr(iwan))
-            ic.setShowName('世间辛苦三千疾，唯有相思不可医*', addr(consumer))
-            ic.setShowName('Life is short*', addr(admin))
+            # ic.dockAsset(0, t721, 3, addr(admin))
+            # ic.dockAsset(0, t721, 4, addr(admin))
+            # ic.dockAsset(1, t721, 5, addr(admin))
 
     except Exception:
         console.print_exception()
