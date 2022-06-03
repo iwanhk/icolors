@@ -22,13 +22,7 @@ contract iColors is Ownable {
     using Strings for uint256;
 
     event Published(address from, uint256 count, uint256 fee);
-    event Minted(
-        address from,
-        address to,
-        string color,
-        uint24 amount,
-        uint256 fee
-    );
+    event Minted(address from, address to, string color, uint24 amount);
 
     struct Publisher {
         uint24[] colorList;
@@ -46,7 +40,6 @@ contract iColors is Ownable {
 
     struct Color {
         string attr;
-        uint24 amount;
         address publisher;
     }
 
@@ -67,7 +60,6 @@ contract iColors is Ownable {
         string calldata _name,
         string calldata _description,
         uint24[] calldata _colors,
-        uint24[] calldata _amounts,
         string[] calldata _attrs
     ) external payable {
         uint256 weight = 0;
@@ -92,20 +84,15 @@ contract iColors is Ownable {
                 uint256 j;
                 for (j = 0; j < size; j++) {
                     if (publishers[msg.sender].colorList[j] == _colors[i]) {
-                        colors[_colors[i]].amount += _amounts[i];
                         break;
                     }
                 }
                 if (j == size) {
                     // this is a new color
                     publishers[msg.sender].colorList.push(_colors[i]);
-                    colors[_colors[i]] = Color(
-                        _attrs[i],
-                        _amounts[i],
-                        msg.sender
-                    );
+                    colors[_colors[i]] = Color(_attrs[i], msg.sender);
                 }
-                weight += bytes(_attrs[i]).length * _amounts[i];
+                weight += bytes(_attrs[i]).length;
             }
         } else {
             // New publisher, first time publish
@@ -124,8 +111,8 @@ contract iColors is Ownable {
                         colors[_colors[i]].publisher == msg.sender,
                     "Color userd"
                 );
-                colors[_colors[i]] = Color(_attrs[i], _amounts[i], msg.sender);
-                weight += bytes(_attrs[i]).length * _amounts[i];
+                colors[_colors[i]] = Color(_attrs[i], msg.sender);
+                weight += bytes(_attrs[i]).length;
             }
         }
 
@@ -139,9 +126,8 @@ contract iColors is Ownable {
         address _to,
         uint24 _color,
         uint24 _amount
-    ) external payable returns (uint256, bool) {
+    ) external onlyOwner returns (bool) {
         require(colors[_color].publisher == _who, "Not owner");
-        require(colors[_color].amount >= _amount, "No enough color items");
         bool doMint = false;
 
         if (!holders[_to].exists) {
@@ -172,13 +158,9 @@ contract iColors is Ownable {
             }
         }
 
-        colors[_color].amount -= _amount;
+        emit Minted(_who, _to, colors[_color].attr, _amount);
 
-        uint256 weight = bytes(colors[_color].attr).length * _amount;
-
-        emit Minted(_who, _to, colors[_color].attr, _amount, weight);
-
-        return (weight, doMint);
+        return doMint;
     }
 
     function _beforeTokenTransfers(

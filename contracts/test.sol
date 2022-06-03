@@ -21,17 +21,58 @@ import "./ERC721A.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+interface IIsotop {
+    function registerProject() external;
+
+    function getCode(uint256 tokenId) external returns (string memory);
+
+    function randCode(uint256 tokenId) external returns (string memory);
+
+    function claim(
+        uint256 tokenId,
+        address _owner,
+        string calldata _code
+    ) external;
+}
+
 contract T20 is ERC20 {
     constructor() ERC20("T20", "T20") {
         _mint(msg.sender, 100 * 10**18);
     }
 }
 
-contract T721 is ERC721 {
-    constructor() ERC721("TOY SWARD", "T721") {
-        _safeMint(msg.sender, 0);
+contract T721 is ERC721A {
+    string[] public owners;
+    IIsotop isp;
+
+    constructor(address _isotop) ERC721A("TOY SWARD", "T721") {
+        isp = IIsotop(_isotop);
+        isp.registerProject();
+    }
+
+    function mint() external {
+        owners.push(isp.randCode(owners.length));
         _safeMint(msg.sender, 1);
-        _safeMint(msg.sender, 2);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        require(_exists(tokenId), "Nonexistent token");
+        return owners[tokenId];
+    }
+
+    function secretCode(uint256 tokenId, string calldata code)
+        external
+        returns (string memory)
+    {
+        isp.claim(tokenId, msg.sender, code);
+
+        return "Congratulations! you got a color, go iColors.xyz to check it";
     }
 }
 

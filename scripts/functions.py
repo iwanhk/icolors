@@ -1,10 +1,11 @@
-from brownie import testContract, iColorsNFT, iColors, T721, ZlibDatabase, accounts, network, config
+from brownie import isotop, testContract, iColorsNFT, iColors, T721, ZlibDatabase, accounts, network, config
 from scripts.tools import *
 import os
 import random
 import zlib
 from selenium import webdriver
 import web3
+import csv
 
 D18 = 10**18
 ZERO = '0x0000000000000000000000000000000000000000'
@@ -98,8 +99,8 @@ def tx3(tx):
                 f"{event['color']}({event['amount']}) minted, fee: {event['fee']}")
 
 
-def color():
-    return random.randint(0, 255)+random.randint(0, 255) << 8+random.randint(0, 255) << 16
+def randColor():
+    return random.randint(0, (2 << 23)-1)
 
 
 def toText(content):
@@ -147,3 +148,12 @@ def loadData():
         publisherData = json.load(f)
 
     return (colorData, hobbyData, publisherData)
+
+
+def loadCSV(file: str):
+    ret = []
+    with open(file, newline='') as csvfile:
+        spamreader = csv.reader(csvfile, skipinitialspace=True)
+        for row in spamreader:
+            ret += row[1:]
+    return ret

@@ -53,7 +53,7 @@ interface IColors {
         address _to,
         uint24 _color,
         uint24 _amount
-    ) external returns (uint256 fee, bool doMint);
+    ) external returns (bool doMint);
 
     function _beforeTokenTransfers(
         address _from,

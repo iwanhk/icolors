@@ -113,7 +113,7 @@ library Metadata {
         if (dp != address(0)) {
             buffer = abi.encodePacked(
                 buffer,
-                IZlibDatabase(dp).get("astronaut-1")
+                IZlibDatabase(dp).get("iColors.NFT")
             );
         }
         return abi.encodePacked(buffer, "</svg>");

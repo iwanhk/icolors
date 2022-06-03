@@ -20,31 +20,31 @@ import "../interfaces/IColors.sol";
 
 contract iColorsNFT is Ownable, ERC998 {
     mapping(address => string) showNames;
-    IColors ic;
-
-    uint256 public Rate = 1;
+    IColors public ic;
 
     constructor(address _icolor) ERC721A("iColors.NFT", "ICO") {
         ic = IColors(_icolor);
+    }
+
+    function getIColors() external view returns (address) {
+        return address(ic);
+    }
+
+    function setPrice(uint256 _Floor, uint256 _Rate) external onlyOwner {
+        ic.setPrice(_Floor, _Rate);
     }
 
     function mint(
         address _to,
         uint24 _color,
         uint24 _amount
-    ) external payable {
+    ) external {
         require(_amount > 0, "0 amount to mint");
         require(_to != address(0), "address 0 to mint");
-        uint256 weight;
-        bool doMint;
 
-        (weight, doMint) = ic.mint(msg.sender, _to, _color, _amount);
-        if (doMint) {
+        if (ic.mint(msg.sender, _to, _color, _amount)) {
             _safeMint(_to, 1);
         }
-
-        require(msg.value >= weight * Rate, "No enought funds");
-        payable(msg.sender).transfer(msg.value - weight * Rate);
     }
 
     function checkDockAssets() external view returns (assetItem[] memory) {
@@ -83,16 +83,6 @@ contract iColorsNFT is Ownable, ERC998 {
             transferAsset(_tokenId, _newId);
             _burn(_tokenId);
         }
-    }
-
-    function setPrice(uint256 _Floor, uint256 _Rate) external onlyOwner {
-        Rate = _Rate;
-        ic.setPrice(_Floor, _Rate);
-    }
-
-    function withdraw() external onlyOwner {
-        ic.withdraw(payable(msg.sender));
-        payable(msg.sender).transfer(address(this).balance);
     }
 
     function tokenURI(uint256 tokenId)
